@@ -1,8 +1,10 @@
 <template lang="pug">
   .list-item(@click="onClick")
-    p(:style="{...titleStyle}") {{title}}
-    span(:style="{...subtitleStyle}" v-if="null != industry") {{industry}}
-    span(:style="{...subtitleStyle}" v-if="null != products") {{products}}
+    p(:style="{...titleStyle}") {{title || '佚名'}}
+    .industry
+      span(:style="{...subtitleStyle}" v-if="null != industry  && industry.length > 0") {{industry}}
+    .product
+      span(:style="{...subtitleStyle}" v-if="null != products && products.length > 0") {{products}}
     .divider_line
 </template>
 
@@ -24,27 +26,33 @@ export default {
   flex-direction column
   margin-top 10px
   p
-    font-size 14px
-    color rgba(84,84,84,1)
-    font-weight 500
-    line-height 22px
-  span
-    heigh 20px
-    fsc 14px #545454
-    margin-top 4px
-    font-weight 400
-    line-height 20px
-  span
-    heigh 20px
-    fsc 12px #7A7A7A
-    margin-top 4px
-    font-weight 400
-    line-height 17px
+    height:22px;
+    font-size:16px;
+    font-weight:500;
+    color:rgba(51,51,51,1);
+    line-height:22px;
+    font-weight bold
+  .industry
+    span
+      height:20px;
+      font-size:14px;
+      font-weight:400;
+      line-height:20px;
+      margin-top 4px
+      color #333333
+  .product
+    span
+      height:17px;
+      font-size:12px;
+      font-weight:400;
+      line-height:17px;
+      margin-top 2px
+      color #666666
   .divider_line
     width 100%
-    height:1px;
     margin-top 10px
-    background:rgba(228,228,228,1);
+    height:1px;
+    background:rgba(238,238,238,1);
 
 </style>
 

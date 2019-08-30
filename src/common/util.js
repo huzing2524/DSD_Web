@@ -1,4 +1,4 @@
-import http from "./http"
+import Http from './http'
 
 /**
  * Date-格式 2019-03-28
@@ -176,19 +176,19 @@ export function ArrangeParams(params) {
 }
 
 export function ArrangeHttpMethod(method) {
-  let httpMethod = http.httpGet
+  let httpMethod = Http.httpGet
   switch (method) {
     case 'post':
-      httpMethod = http.httpPost
+      httpMethod = Http.httpPost
       break
     case 'put':
-      httpMethod = http.httpPut
+      httpMethod = Http.httpPut
       break
     case 'delete':
-      httpMethod = http.httpDelete
+      httpMethod = Http.httpDelete
       break
     default:
-      httpMethod = http.httpGet
+      httpMethod = Http.httpGet
   }
   return httpMethod
 }
@@ -200,7 +200,7 @@ export const isDev = process.env.NODE_ENV === 'development'
  */
 export const setStore = (name, content) => {
   if (!name) return;
-  if (typeof content !== 'string') {
+  if (content instanceof 'String') {
     content = JSON.stringify(content);
   }
   window.localStorage.setItem(name, content);
@@ -532,5 +532,17 @@ export function timeTab(idx) {
   return {
     start: end - num,
     end: end
+  }
+}
+export function toPhoneCall(phoneNum) {
+  let u = navigator.userAgent
+  let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+  let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+  if (isAndroid) {
+    window.android.phoneCall(phoneNum)
+  }else if(isIOS){
+    window.webkit && window.webkit.messageHandlers.phoneCall.postMessage(phoneNum)
+  }else{
+    window.location.href = `tel://${phoneNum}`
   }
 }

@@ -51,7 +51,7 @@
             .to_detail(@click="clickButton('4')") 查看详情
           .client_rank
             .client_rank_item(v-for="(item, idx) in cRankData" :key="idx")
-              .name {{item.name.length > 3 ? item.name.slice(0, 3)+'...' : item.name}}
+              .name {{null != item.name && item.name.length > 3 ? item.name.slice(0, 3)+'...' : item.name}}
               .block
               p {{item.amount}}
 </template>
@@ -75,10 +75,10 @@
         purchaseMainData: {purchase_amount:{}, purchase_progress:{}},
         dataList: {
           total: 1,
-          desc: '发货单',
+          desc: '采购单',
           rows: [
             {'name': '准时交货', 'val': 0},
-            {'name': '逾期发货', 'val': 0},
+            {'name': '逾期交货', 'val': 0},
             {'name': '待发货', 'val': 0},
           ]
         },
@@ -170,15 +170,16 @@
             flag = `purchase_arrival_rate`
             break;
           case '2':
-            flag = `purchase_executive_condition`
+            flag = `purchase_money`
             break;
           case '3':
-            flag = `purchase_money`
+            flag = `purchase_executive_condition`
             break;
           case '4':
             flag = `purchase_submit_ontime_rankinglist`
             break;
         }
+        console.log(`/purchase/statistic_analysis/` + flag)
         this.$router.push(`/purchase/statistic_analysis/` + flag)
       },
     }

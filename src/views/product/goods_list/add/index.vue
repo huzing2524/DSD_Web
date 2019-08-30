@@ -1,9 +1,14 @@
 <template lang="pug">
   .main
-    .add-input
-      input(placeholder="填写物料名称"
-            v-model="searchName"
-            @input="input")
+    .content
+      .add-input
+        input(placeholder="填写物料名称"
+              v-model="searchName"
+              @input="input"
+              class="input")
+        .close-icon(@click="clean")
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href="#iconguanb")
       .under-line
       .result-content
         .result-item(v-for="(item, index) in resultDatas" 
@@ -25,6 +30,10 @@ export default {
     }
   },
   methods: {
+    clean() {
+      this.searchName = ""
+      this.searchName = []
+    },
     noneGoods() {
       this.$store.commit('product/Goods_Add_Type', '0')
       this.$router.push('/product/goods_list/create')
@@ -63,13 +72,27 @@ export default {
     padding 39px 25px 0px 25px
     display flex
     justify-content  center
-    .add-input
+    .content
+      height 40vh
       width 100%
-      height 40%
-      font-size 15px
-      font-weight 400
+      .add-input
+        width 100%
+        height 38px
+        font-size 15px
+        font-weight 400
+        display flex
+        flex-direction row
+        align-items center
+        .input
+          height 38px
+          flex 1
+        .close-icon
+          display flex
+          justify-content center
+          align-items center
+          height 15px
+          width 15px
       .under-line
-        margin-top 5px
         height 1px
         background-color #DDDDDD
       .result-content

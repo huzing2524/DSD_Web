@@ -5,7 +5,7 @@ export default [
     component: () =>
       import ('_views/store'),
     meta: {
-      title: '仓库首页',
+      title: '仓库',
     }
   },
   {
@@ -24,6 +24,15 @@ export default [
       import ('_views/store/invoice_order/detail'),
     meta: {
       title: '发货单详情',
+    }
+  },
+  {
+    path: '/store/invoice_order/remark',
+    name: 'store_invoice_order_remark',
+    component: () =>
+      import ('_views/store/invoice_order/remark'),
+    meta: {
+      title: '发货',
     }
   },
   {
@@ -108,6 +117,24 @@ export default [
     }
   },
   {
+    path: '/store/storage_list/new',
+    name: 'store_storage_list_new',
+    component: () =>
+      import ('_views/store/storage_list/new'),
+    meta: {
+      title: '新建仓库',
+    }
+  },
+  {
+    path: '/store/storage_list/edit',
+    name: 'store_storage_list_edit',
+    component: () =>
+      import ('_views/store/storage_list/edit'),
+    meta: {
+      title: '编辑仓库',
+    }
+  },
+  {
     path: '/store/storage_list/detail/product',
     name: 'store_storage_list_detail_product',
     component: () =>
@@ -153,6 +180,15 @@ export default [
     }
   },
   {
+    path: '/store/storage_check/remark',
+    name: 'store_storage_check_remark',
+    component: () =>
+      import ('_views/store/storage_check/remark'),
+    meta: {
+      title: '通过审批',
+    }
+  },
+  {
     path: '/store/purchase_apply',
     name: 'store_purchase_apply',
     component: () =>
@@ -168,6 +204,15 @@ export default [
       import ('_views/store/purchase_apply/detail'),
     meta: {
       title: '临时申购详情',
+    }
+  },
+  {
+    path: '/store/purchase_apply/remark',
+    name: 'store_purchase_apply_remark',
+    component: () =>
+      import ('_views/store/purchase_apply/remark'),
+    meta: {
+      title: '通过审批',
     }
   },
   {

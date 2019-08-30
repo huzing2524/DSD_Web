@@ -5,7 +5,8 @@
         :key="idx"
         @click="confirmClick(item)")
         p {{item.name}}
-        p {{item.contacts}}
+        p {{item.industry}}
+        p {{item.products}}
 </template>
 
 <script>
@@ -42,10 +43,7 @@
         this.updateOrderSub({
           customer: item
         })
-        this.$router.go(-1)
-      },
-      toCreateClick(){
-        this.$router.push({path:'/txl/customer/create'})
+        this.$router.push('/order/order_new/select_product')
       },
     },
     mounted(){
@@ -61,17 +59,16 @@
       padding 0 20px
       margin-top 10px
       .customer_item
-        display flex
-        justify-content space-between
         padding 16px 0
         border-bottom 1px solid #E5E5E5
         &:nth-last-of-type(1)
           border: none
         p
-          font-size 14px
           &:nth-of-type(1)
-            color #333
+            fsc 16px #333
           &:nth-of-type(2)
-            font-size 14px
-            color #A1A1A1
+            fsc 14px #333
+            margin 8px 0 6px
+          &:nth-of-type(3)
+            fsc 12px #666
 </style>

@@ -17,8 +17,7 @@
     },
     data() {
       return {
-        purchaseListType: 2,
-        typeArray: ["准时交货", "逾期交货","待发货"],
+        purchaseListType: '2',
         jumpPath: '/purchase/purchase_list/purchase_detail',
         mDataList: {
           /*"1": [

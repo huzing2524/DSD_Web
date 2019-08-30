@@ -7,7 +7,7 @@ import { ArrangeHttpMethod } from '_common/util'
  * @constructor
  */
 export function ProductHomeHeader(params) {
-  return ArrangeHttpMethod('get')('product/home/header' , params)
+  return ArrangeHttpMethod('get')('/product/home/header' , params)
 }
 
 /**
@@ -25,8 +25,8 @@ export function ProductHomeStats(params) {
  * @param {*} params
  * @param {*} path
  */
-export function ProcessList(params, path) {
-  return ArrangeHttpMethod('get')('/product/process/list'+ (path || '') , params)
+export function ProcessList(params) {
+  return ArrangeHttpMethod('get')('/product/process/list' , params)
 }
 
 /**
@@ -34,8 +34,8 @@ export function ProcessList(params, path) {
  * @param {name: 'xxx'} params
  * @param {*} path
  */
-export function ProcessAdd(params, path) {
-  return ArrangeHttpMethod('post')('/product/process/new'+ (path || '') , params)
+export function ProcessAdd(params) {
+  return ArrangeHttpMethod('post')('/product/process/new', params)
 }
 
 /**
@@ -61,8 +61,8 @@ export function ProcessChange(params, path) {
  * @param params
  * @param path
  */
-export function CraftsList(params, path) {
-  return ArrangeHttpMethod('get')('/product/pb/list'+ (path || '') , params)
+export function CraftsList(params) {
+  return ArrangeHttpMethod('get')('/product/pb/list' , params)
 }
 
 
@@ -233,7 +233,7 @@ export function ProductTakList(){
  * @param {} path 任务id
  */
 export function ProductTsMaterials(path) {
-  return ArrangeHttpMethod('get')('product/material/rs_list/'+path || '')
+  return ArrangeHttpMethod('get')('/product/material/rs_list/'+path || '')
 }
 
 /**
@@ -286,8 +286,8 @@ export function ProductTaskDetail(params, methods, path) {
 
 /**
  * 获取生产进度
- * @param {*} params 
- * @param {*} methods 
+ * @param {*} params
+ * @param {*} methods
  * @param {*} path  product/task/process/{task_id}/{process_step}
  */
 export function ProductProcessDetail(params, methods, path) {
@@ -305,7 +305,7 @@ export function ProductProcessDetail(params, methods, path) {
  * @constructor
  */
 export function ProductTaskSplit(params, methods, path) {
-  return ArrangeHttpMethod(methods)('/product/task/split/' + path, params)
+  return ArrangeHttpMethod(methods)('/product/task/split' + (path?('/'+path):''), params)
 }
 
 /**
@@ -317,7 +317,7 @@ export function ProductTaskSplit(params, methods, path) {
  * @constructor
  */
 export function ProductTaskDone(params, methods, path) {
-  return ArrangeHttpMethod(methods)('/product/task/done/' + path, params)
+  return ArrangeHttpMethod(methods)('/product/task/done' + (path?('/'+path):''), params)
 }
 
 /**
@@ -325,7 +325,7 @@ export function ProductTaskDone(params, methods, path) {
  * @param  path 补料单id
  */
 export function SupplementDetail(path) {
-  return ArrangeHttpMethod('get')('/product/material/supplement/detail/'+(path || ''))
+  return ArrangeHttpMethod('get')('/product/material/supplement/detail'+(path?('/'+path):''))
 }
 
 /**
@@ -360,7 +360,7 @@ export function ReturnList() {
  * @param path 退料单id
  */
 export function ReturnDetail(path) {
-  return ArrangeHttpMethod('get')('/product/material/return/detail/'+(path||''))
+  return ArrangeHttpMethod('get')('/product/material/return/detail'+(path?('/'+path):''))
 }
 
 
@@ -369,7 +369,7 @@ export function ReturnDetail(path) {
  * @param path 退料单id
  */
 export function ReturnQrcodeDetail(path) {
-  return ArrangeHttpMethod('get')('/product/material/return/'+(path||''))
+  return ArrangeHttpMethod('get')('/product/material/return'+(path?('/'+path):''))
 }
 
 /**
@@ -377,7 +377,7 @@ export function ReturnQrcodeDetail(path) {
  * @param path 退料单id
  */
 export function ReturnQrcodeConfirm(params,path) {
-  return ArrangeHttpMethod('put')('/product/material/return/'+(path||''), params)
+  return ArrangeHttpMethod('put')('/product/material/return'+(path?('/'+path):''), params)
 }
 
 /**

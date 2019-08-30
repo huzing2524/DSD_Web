@@ -14,8 +14,12 @@
       ...mapActions('order', [
         'updateOrderSub',
       ]),
+      ...mapActions('rights', [
+        'updateRightsDetail'
+      ]),
       toNew() {
         this.updateOrderSub()
+        this.updateRightsDetail()
         this.$router.push(this.to)
       }
     }

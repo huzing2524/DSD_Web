@@ -1,27 +1,16 @@
 <template lang="pug">
   .main.full_box
     .scheduled_time
-      .left
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_time")
-        span 预计到货时间
+      span 期望到货时间
       .right(@click="chooiceDate")
         span {{getYMDDateDecimalString(getData.plan_arrival_time)}}
         .icon
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconarrow_")
-    .divider_line
-    .remark
-      .material_title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_remarks")
-        span 备注
-      textarea(placeholder="选填..." v-model="getData.remark")
-    .operator_bar
-      span
-      button(@click = "clickSubmit") 提交
+    textarea(placeholder="给供应商留言（选填）" v-model="getData.remark" maxlength=60)
+    span {{getData.remark.length}}/60
+    .operator
+      button(@click = "clickSubmit") 保存
 </template>
 
 <script>
@@ -29,10 +18,6 @@
   import {mapActions, mapState} from "vuex";
   import {PurchaseOrder} from "../../../../api/purchase";
   import {getYMDDateDecimalString,getTimestampByDate } from '_common/util'
-
-  // var date = new Date()
-  // var dateTime = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()
-
   export default {
     components: {Textarea},
     data() {
@@ -121,20 +106,12 @@
       flex-direction row
       justify-content space-between
       background white
-      padding 15px
-      bottom 15px
-      .left
-        display flex
-        flex-direction row
-        align-items center
-        .icon
-          display flex
-          width 16px
-          height 18px
-          margin-right 7px
-        span
-          fsc 15px #545454
-          align-items center
+      margin 10px
+      padding 12px 10px
+      border-radius 6px
+      span
+        fsc 15px #333333
+        text-align center
       .right
         display flex
         flex-direction row
@@ -147,49 +124,30 @@
           display flex
           width 6px
           height 12px
-    .divider_line
-      background #E6EAED
-      height 10px
-    .remark
-      display flex
-      flex-direction column
+    textarea
+      fsc 14px #999999
       bgf()
-      .material_title
-        display flex
-        flex-direction row
-        align-items center
-        margin  15px
-        .icon
-          display flex
-          width 16px
-          height 18px
-          margin-right 7px
-        span
-          fsc 15px #545454
-          align-items center
-      textarea
-        fsc 14px #999999
-        background rgba(233,245,255,1)
-        border-radius 6px
-        border 0
-        outline none
-        align-items center
-        margin 0 15px 15px
-    .operator_bar
-      width 100%
-      position absolute
-      bottom 0
-      display flex
+      min-height 60px
+      border-radius 6px
+      border 0
+      outline none
       align-items center
-      flex-direction row
-      justify-content flex-end
-      bgf()
+      margin 0 10px
+      padding 12px 10px
+    span
+      fsc 12px #999999
+      text-align right
+      margin-right 10px
+      margin-top 4px
+    .operator
+      text-align center
+      weight 48px
+      margin-top 30px
       button
         border 0
         outline none
-        border-radius 16px
-        border 1px solid rgba(77,168,238,1)
-        fsc 14px #4DA8EE
-        padding 6px 19px
-        margin 15px
+        border-radius 24px
+        background rgba(30,154,255,1)
+        fsc 14px white
+        wh 180px 48px
 </style>

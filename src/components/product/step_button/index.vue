@@ -1,6 +1,7 @@
 <template lang="pug">
-  .next-step(@click="btnClick")
-    p(:style="{...titleStyle}") {{title}}    
+  .sb-content
+    .next-step(@click="btnClick")
+      p(:style="{...titleStyle}") {{title}}    
 </template>
 
 <script>
@@ -40,16 +41,23 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.next-step
-  display flex
+.sb-content
+  display flex 
   justify-content center
   align-items center
-  background-color rgba(30,154,255,1)
-  border-radius 22px
+  width 100vw
   height 44px
-  margin-top 40px
-  p
-    color white
+  margin-top 30px
+  .next-step
+    display flex
+    justify-content center
+    align-items center
+    background-color rgba(30,154,255,1)
+    border-radius 22px
+    height 44px
+    width 180px
+    p
+      color white
 </style>
 
 

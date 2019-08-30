@@ -1,22 +1,24 @@
 <!--创建或者修改客户都要用到这个材料修改界面，如果是创建，则在下一个页面保存数据；如果是修改在这个界面保存数据-->
 <template lang="pug">
   .main
-    p 以下数据源来自本公司的产品目录类
+    .list-content
+      p 以下数据源来自本公司的产品目录类
+      .list-item(v-for="(product, productIdx) in categoryList"
+        @click="itemClick(product)")
+        .nameAndState
+          span(class="item-name") {{product.name}}
+          span(class="item_other") 最小起订量：{{product.lowest_count=== null ? 0 : product.lowest_count}}{{product.unit || ''}} | 最小包装量：{{product.lowest_package=== null ? 0 : product.lowest_package}}{{product.unit || ''}}
+        .icon-chooice(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].unit_price>0)")
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href='#iconxuanz')
     MaterialEditMask(:show="isShowEditMask"
       :items="Object.values(selectedProductDict)"
       @arrowClick="selectedMaskArrowClick"
       @clearClick="selectedMaskClearClick"
       @itemClick="selectedMaskItemClick")
       template(v-slot:title="slotProps") {{slotProps.item.name}}
-      template(v-slot:subtitle="slotProps") {{`单位：${slotProps.item.unit}|采购价：${slotProps.item.unit_price}元`}}
-    .list-item(v-for="(product, productIdx) in categoryList"
-      @click="itemClick(product)")
-      .nameAndState
-        span(class="item-name") {{product.name}}
-        .icon-chooice(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].unit_price>0)")
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconxuanz')
-      span ￥{{product.unit_price}}
+      template(v-slot:subtitle="slotProps") {{`单位：${slotProps.item.unit}`}} {{`单位售价：${slotProps.item.unit_price}元`}}
+      template(v-slot:tip="slotProps") 最小起订量：{{slotProps.item.lowest_count=== null ? 0 : slotProps.item.lowest_count}}{{slotProps.item.unit || ''}} | 最小包装量：{{slotProps.item.lowest_package === null ? 0 : slotProps.item.lowest_package}}{{slotProps.item.unit || ''}}
     .select-content
       .save-row
         .icon-car(v-if="totalCount <= 0")
@@ -32,8 +34,12 @@
     MaterialInputMask(
       :title='currentInputProduct.name'
       :unit='currentInputProduct.unit'
+      :inputPriceValue='inputPriceValue'
+      :lowestCountValue='currentInputProduct.lowest_count'
+      :lowestPackageNumValue='currentInputProduct.lowest_package'
+      :isCreate='this.$route.query.type === "create" ? "true" : "false"'
       :show="isShowInputMask"
-      :inputValue='inputValue'
+      priceName='单位售价'
       @arrowClick="hideInputMask"
       @addClick="inputMaskAddClick"
       @clearClick="inputMaskClearClick")
@@ -59,7 +65,7 @@
         isShowInputMask: false,
         isShowEditMask: false,
         totalCount: 0,
-        inputValue: '',
+        inputPriceValue: '',
         currentInputProduct: {},  // 当前编辑的产品
         selectedProductDict:{},  // 有数量的产品 {id: {id:'',name:'',category_id:'',count:''},...}
         categoryList: [],
@@ -148,7 +154,7 @@
       ]),
       initData() {
         let path = this.type === 'add' ? this.queryId : ''
-        console.log(".....................................path="+path)
+        console.log("path="+path)
         getClientsProductsList({'id': path}, 'get', '').then(res => {
           console.log("res="+res)
           console.log(res.data)
@@ -163,7 +169,6 @@
         }).catch((e) => {
           console.log("获取数据失败,失败原因"+ e.toString())
         })
-
       },
       /**
        * 数据下载完后把详情那边带有的物料数据设置到已经选的list里面去。
@@ -189,6 +194,15 @@
           console.log(this.totalCount);
         }
       },
+      /**
+       * @returns 如果最低起购量和最低打包量都是0，则返回false，不显示这一行了。
+       */
+      /*getOtherVisible(packageNum, count) {
+        if((packageNum === null && count === null) || (packageNum === 0 && count === 0)) {
+          return false
+        }
+        return true
+      },*/
       // 计算总条数，筛选选中的产品
       getTotalCount() {
         let count = 0
@@ -201,24 +215,35 @@
       },
       itemClick(product) {
         this.currentInputProduct = product
-        this.inputValue = this.selectedProductDict[product.id] && (this.selectedProductDict[product.id].unit_price > 0) ? this.selectedProductDict[product.id].unit_price : ''
+        this.inputPriceValue = this.selectedProductDict[product.id] && (this.selectedProductDict[product.id].unit_price > 0) ? this.selectedProductDict[product.id].unit_price : ''
         this.isShowInputMask = true
       },
       hideInputMask() {
         this.isShowInputMask = false
       },
       // 点击添加物料时调用
-      inputMaskAddClick(value) {
-        if(value==0) {
-          this.$toast('采购价不能为0')
+      inputMaskAddClick(priceValue, countValue, packageNumValue) {
+        if(priceValue<=0 || priceValue === '') {
+          this.$toast('售价必须大于0')
           return
         }
-        this.currentInputProduct['unit_price'] = parseInt(value)
+        if(countValue<0 || countValue === '') {
+          this.$toast('最小起订量不能小于0')
+          return
+        }
+        if(packageNumValue<0 || packageNumValue === '') {
+          console.log(packageNumValue);
+          this.$toast(packageNumValue)
+          this.$toast('最小包装量不能小于0')
+          return
+        }
+        this.currentInputProduct['unit_price'] = parseInt(priceValue)
+        this.currentInputProduct['lowest_count'] = parseInt(countValue)
+        this.currentInputProduct['lowest_package'] = parseInt(packageNumValue)
         this.selectedProductDict[this.currentInputProduct.id] = this.currentInputProduct
         this.isShowInputMask = false
-        if(value > 0) {
-          this.selectedProductDict[this.currentInputProduct.id] = this.currentInputProduct
-        }
+        this.selectedProductDict[this.currentInputProduct.id] = this.currentInputProduct
+
         this.getTotalCount()
       },
       // 点击输入框的清空按钮
@@ -256,17 +281,19 @@
             id:product.id,
             name:product.name,
             unit:product.unit,
-            unit_price:product.unit_price})
+            unit_price:product.unit_price,
+            lowest_package:product.lowest_package,
+            lowest_count:product.lowest_count,
+          })
           this.getClientMessageDetail.products = products;
         })
-        console.log(this.getClientMessageDetail)
-        console.log(this.getClientMessageDetail.name)
-        console.log(this.getClientMessageDetail.products[0])
+        if(!this.getClientMessageDetail.products.length){
+          this.$toast('请至少选择一种产品')
+          return
+        }
         this.updateOrderClientMessage({
           ...this.getClientMessageDetail
         })
-
-        console.log("client_products->this.type="+this.type)
         // if(this.type === 'edit') {
         this.$router.push(`/order/clients/client_message_create/?id=${this.queryId}&type=${this.type}`)
         // } else {
@@ -281,38 +308,42 @@
 <style lang="stylus" scoped>
   .main
     width 100%
-    // height 100%
     padding-bottom 95px
     background-color #E6EAED
-    p
-      padding 15px 10px 15px 10px
-      fsc 14px #999999
-    .list-item
+    display flex
+    flex-direction column
+    .list-content
       overflow-y scroll
-      display flex
-      flex-direction column
-      border-radius 6px
-      background-color #ffffff
-      margin-top 10px
-      margin-right 10px
-      margin-left 10px
-      padding 10px 10px
-      .nameAndState
+      padding 10px 10px 0
+      p
+        padding-bottom 15px
+        fsc 14px #999999
+      .list-item
         display flex
+        height 50px
+        flex-direction row
         justify-content space-between
+        border-radius 6px
+        background-color #ffffff
+        margin-bottom 10px
+        padding 10px
         align-items center
-        .item-name
-          font-size 14px
-          color #545454
+        .nameAndState
+          display flex
+          flex-direction column
+          .item-name
+            font-size 14px
+            color #545454
+          .item_other
+            fsc 12px #999999
+            margin-top 8px
+            align-items left
         .icon-chooice
           wh 18px 18px
-      span
-        fsc 12px #999999
-        margin-top 8px
     .select-content
       background-color #ffffff
       width 100%
-      height 85px
+      height 62px
       position fixed
       bottom 0px
       display flex
@@ -323,8 +354,8 @@
         flex-direction row
         align-items center
         justify-content space-between
-        height 60px
-        padding 0px 15px 10px 10px
+        height 52px
+        padding 0px 15px 0px 10px
         width 100%
         .icon-car
           height 28px
@@ -348,8 +379,8 @@
           display flex
           justify-content center
           align-items center
-          height 32px
-          width 100px
+          height 28px
+          width 80px
           background-color #1E9AFF
           border-radius 16px
           .save-span

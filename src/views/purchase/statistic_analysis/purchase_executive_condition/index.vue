@@ -8,14 +8,16 @@
 <script>
   import PurchaseList from "_components/card_list/_purchaselist";
   import {getPurchaseList} from "_api/purchase"
+  import NullPage from '_components/null_page/'
 
   export default {
     components: {
       PurchaseList,
+      NullPage
     },
     data() {
       return {
-        purchaseListType: 5,
+        purchaseListType: '5',
         jumpPath: '/purchase/purchase_list/purchase_detail',
         mDataList: {
           "1": [

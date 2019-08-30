@@ -1,16 +1,12 @@
 <template lang="pug">
   .main
-    .goods-name
-      p {{data.name}}
-    .goods-id(v-show="queryType!=1")
-      p {{`编码：${data.id}`}}
-    .goods-id
-      p {{`单位：${data.unit}`}}
-    .goods-id
-      p {{`类目：${data.category || '其他'}`}}
+    p(class="goods-name") {{data.name}}
+    .content
+      p(class="goods-id" v-show="queryType!=1") {{`编码：${data.id}`}}
+      p(class="goods-id") {{`单位：${data.unit}`}}
+      p(class="goods-id") {{`类目：${data.category || '其他'}`}}
     .add-btn(@click="create")
-      .add-title
-        p 添加
+      p(class="add-title") 添加
 
 </template>
 
@@ -59,7 +55,7 @@ export default {
             this.$toast(data.errmsg)
           } else {
             // this.$router.push(`/product/goods_list/detail?id=${data.id}`)
-            this.$router.push(`/product/goods_list/add_success?id=${data.id}&name=${this.queryName}`)
+            this.$router.push(`/product/goods_list/add_success?id=${data.id}&name=${this.queryName}&unit=${this.queryUnit}`)
           }
         } catch (error) {
           this.$toast('操作失败')
@@ -88,6 +84,15 @@ export default {
     width 100%
     background-color white
     padding 15px
+    display flex
+    flex-direction column
+    .content
+      margin-top 10px
+      background-color #F5FBFF
+      border-radius 6px
+      display flex
+      flex-direction column
+      padding 0px 0px 10px 10px
     .goods-name
       font-size 15px
       font-weight 500
@@ -104,6 +109,8 @@ export default {
       background-color rgba(30,154,255,1)
       border-radius 22px
       height 44px
+      width 180px
+      align-self center
       margin-top 40px
       .add-title
         color white

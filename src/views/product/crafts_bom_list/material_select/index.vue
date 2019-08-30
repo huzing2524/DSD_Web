@@ -1,25 +1,24 @@
 
 <template lang="pug">
   .main
-    MaterialEditMask(:show="isShowEditMask"
-              :items="Object.values(selectedProductDict)"
-              @arrowClick="selectedMaskArrowClick"
-              @clearClick="selectedMaskClearClick"
-              @itemClick="selectedMaskItemClick")
-      template(v-slot:title="slotProps") {{slotProps.item.name}}
-      template(v-slot:subtitle="slotProps") {{`${slotProps.item.count}条`}}
-
     .list-content(v-for="(category, categoryIdx) in categoryList" :key="categoryIdx")
       span(class="item-title") {{category.name}}
       .list-item(v-for="(product, productIdx) in category.list"
               :key="product.name+productIdx"
               @click="itemClick(product)")
         span(class="item-name") {{product.name}}
-        .item-select-count(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].count>0)")
-          span(class="item-select-span") {{selectedProductDict[product.id].count >= 100 ? "···" : selectedProductDict[product.id].count}}
-
+        .icon-selected(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].count>0)")
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href='#iconxuanz')
+    MaterialEditMask(:show="isShowEditMask"
+                  :items="Object.values(selectedProductDict)"
+                  @arrowClick="selectedMaskArrowClick"
+                  @clearClick="selectedMaskClearClick"
+                  @itemClick="selectedMaskItemClick")
+          template(v-slot:title="slotProps") {{slotProps.item.name}}
+          template(v-slot:subtitle="slotProps") {{`${slotProps.item.count}${slotProps.item.unit}`}}
     .select-content
-      span(class="title" :style="{visibility:!isShowEditMask?'visible':'hidden'}") {{`工序：${queryName}`}}
+      span(class="title" :style="{visibility:!isShowEditMask?'visible':'hidden'}") {{`工序：${process.name || process.process_name}`}}
       .save-row
         .icon-car(v-if="totalCount <= 0")
           svg.ali_icon(aria-hidden="true")
@@ -30,7 +29,7 @@
           .select-count
             span(class="select-count-span") {{totalCount}}
         .save-btn(@click="saveClick")
-          span(class="save-span") 保存
+          span(class="save-span") 下一步
     MaterialInputMask(:title="currentInputProduct.name",
             :show="isShowInputMask"
             :inputValue='inputValue'
@@ -44,7 +43,8 @@
 <script>
 import MaterialInputMask from '_components/product/material_input_mask'
 import MaterialEditMask from '_components/product/material_edit_mask'
-import { GoodsList, ChangeCrafts } from '_api/product'
+import { GoodsList } from '_api/product'
+import {mapState} from 'vuex'
 export default {
   components: {
     MaterialInputMask,
@@ -62,15 +62,9 @@ export default {
     }
   },
   computed: {
-    queryId() {
-      return this.$route.query.id
-    },
-    queryName() {
-      return this.$route.query.name
-    },
-    queryStep() {
-      return this.$route.query.step
-    }
+    ...mapState('product', {
+      process: state => state.bomProcess
+    })
   },
   mounted() {
     this.initData()
@@ -91,13 +85,14 @@ export default {
 
     // 计算总条数，筛选选中的产品
     getTotalCount() {
-      let count = 0
-      this.selectedProductArr = []
-      Object.values(this.selectedProductDict).forEach(product => {
-        this.selectedProductArr.push(product)
-        count += product.count
-      })
-      this.totalCount = count >= 100 ? '···' : count
+      // let count = 0
+      // this.selectedProductArr = []sou
+      // Object.values(this.selectedProductDict).forEach(product => {
+      //   this.selectedProductArr.push(product)
+      //   count += product.count
+      // })
+      // this.totalCount = count >= 100 ? '···' : count
+      this.totalCount = Object.values(this.selectedProductDict).length
     },
     itemClick(product) {
       this.currentInputProduct = product
@@ -110,13 +105,12 @@ export default {
     },
     // 点击添加物料时调用
     inputMaskAddClick(value) {
-      this.currentInputProduct['count'] = parseInt(value)
-      this.selectedProductDict[this.currentInputProduct.id] = this.currentInputProduct
       this.isShowInputMask = false
       if(value > 0) {
+        this.currentInputProduct['count'] = parseInt(value)
         this.selectedProductDict[this.currentInputProduct.id] = this.currentInputProduct
+        this.getTotalCount()
       }
-      this.getTotalCount()
     },
     // 点击输入框的清空按钮
     inputMaskClearClick() {
@@ -146,28 +140,8 @@ export default {
     },
     // 点击保存
     async saveClick() {
-      let materials = []
-      Object.values(this.selectedProductDict).forEach(product => {
-        materials.push({id:product.id,count:product.count})
-      })
-      const body = {
-        materials: materials
-      }
-      if(this.queryStep) {  // 修改
-        body['process_step'] = this.queryStep
-      } else {  // 新增
-        body['process_id'] = this.$route.query.process_id
-      }
-      try {
-        const { data } = await ChangeCrafts(body, this.queryId, this.queryStep?'put':'post')
-        if(data.errmsg) {
-          this.$toast(data.errmsg)
-        } else {
-          this.$router.go(-3)
-        }
-      } catch (error) {
-        this.$toast('保存出错')
-      }
+      this.$store.commit('product/Bom_Materials', Object.values(this.selectedProductDict))
+      this.$router.push('/product/crafts_bom_list/add_time')
     }
   },
 }
@@ -197,6 +171,12 @@ export default {
         .item-name
           font-size 14px
           color #545454
+        .icon-selected
+          height 18px
+          width 18px
+          display flex
+          justify-content center
+          align-items center
         .item-select-count
           background-color #FF4452
           height 18px
@@ -221,14 +201,16 @@ export default {
         font-size 12px
         color #545454
         margin-top 8px
+        margin-bottom 8px
       .save-row
         display flex
         flex-direction row
         align-items center
         justify-content space-between
         height 60px
-        padding 0px 15px 10px 10px
+        padding 0px 15px 0px 10px
         width 100%
+        border-top 1px #cccccc solid
         .icon-car
           height 28px
           width 36px

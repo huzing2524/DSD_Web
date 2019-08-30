@@ -1,22 +1,18 @@
 <template lang="pug">
   .main
-    .goods-input
-      .input-name
-        p 物料名称
-      .input
-        input(placeholder="填写物料名称",v-model="name")
-    .goods-input(margin-top='36px')
-      .input-name
-        p 物料单位
-      .input
-        input(placeholder="填写物料单位",v-model="unit")
+    InformationInput(title="物料名称" placeholder="填写物料名称" v-model="name")
+    InformationInput(title="物料单位" placeholder="填写物料单位" v-model="unit")
     .next-step(@click="nextStep")
       p 下一步
 </template>
 
 <script>
 import { GoodsCreate } from '_api/product'
+import InformationInput from '_components/product/information_input'
 export default {
+  components: {
+    InformationInput
+  },
   data() {
     return {
       name:'',
@@ -29,21 +25,10 @@ export default {
       if(this.name.length<=0) {
         return this.$toast('请填写物料名称')
       }
-      if(this.unit.length<=0) {
-        return this.$toast('请填写物料单位')
+      if(this.unit.length<=0 || !isNaN(parseInt(this.unit))) {
+        return this.$toast('请填写正确物料单位')
       }
       this.$router.push(`/product/goods_list/detail?type=1&name=${this.name}&unit=${this.unit}`)
-      // try {
-      //   const body = {name: this.name, unit: this.unit }
-      //   const {data} = await GoodsCreate(body)
-      //   if(data.errmsg) {
-      //     this.$toast(data.errmsg)
-      //   } else {
-      //     this.$router.push(`/product/goods_list/detail?id=${data.id}`)
-      //   }
-      // } catch (error) {
-      //   this.$toast('操作失败')
-      // }
     }
   },
 }
@@ -53,22 +38,10 @@ export default {
   .main
     width 100%
     height 100%
-    background-color white
-    padding 11px 20px 0px 25px
-    .goods-input
-      display flex
-      flex-direction row
-      margin-top 25px
-      .input-name
-        font-size 15px
-        font-weight 400
-        color rgba(84,84,84,1)
-      .input
-        flex 1
-        margin-left 10px
-        color rgba(153,153,153,1)
-        font-size 14px
-        border-bottom 1px solid rgba(204,204,204,1)
+    background-color #E6EAED
+    display flex
+    flex-direction column
+    align-items center
     .next-step
       display flex
       justify-content center
@@ -77,6 +50,7 @@ export default {
       border-radius 22px
       height 44px
       margin-top 40px
+      width 180px
       p
         color white
         font-size 15px

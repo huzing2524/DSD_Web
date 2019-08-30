@@ -51,7 +51,6 @@
           }else if(isIOS){
             window.webkit.messageHandlers.iosGetFinish.postMessage(null);
           }
-          // this.$router.push(`/store`)
         }
       },
   }
@@ -69,36 +68,35 @@
     .top
       fdc()
       fct()
-      margin-top 46px
+      margin-top 40px
       .icon
-        wh(70px,70px)
-        margin-bottom 10px
+        wh 60px 60px
+        margin-bottom 12px
       span
-        fsc(15px,#545454)
-        margin-bottom 20px
+        fsc 16px #333333
+        margin-bottom 30px
     .content
       padding 0 35px
       .item_list
         fdc()
-        background #F0F8FF
+        background #F5FBFF
         padding 20px 20px 0
         .item
           fdr()
           margin-bottom 20px
           justify-content space-between
           span
-            fsc(14px,#545454)
+            fsc 14px #333333
           p
-            fsc(14px,#999999)
+            fsc 14px #666666
     .back
       display flex
       justify-content center
       align-items center
       margin 0 auto
-      wh(140px,40px)
-      font-size 15px
-      border 1px solid #4988FC
-      color #4988FC
+      wh 120px 36px
+      fsc 14px #1E9AFF
+      border 1px solid #1E9AFF
       border-radius 20px
       margin-top 180px
 </style>

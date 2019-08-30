@@ -1,23 +1,16 @@
 <template lang="pug">
   .main
-    .title
-      p {{`${goods.name}`}}
-    .detail
-      p {{`编码：${goods.id}`}}
-    .detail
-      p {{`单位：${goods.unit}`}}
-    .detail
-      p {{`售价：${goods.price||'未设置'}`}}
-    .detail
-      p {{`最小采购量：${goods.lowest_count||'未设置'}`}}
-    .detail
-      p {{`安全库存：${goods.safety||'未设置'}`}}
-    .detail
-      p {{`生产损耗率：${goods.loss_coefficient}`}}
-    .detail
-      p {{`类目：${goods.category}`}}
+    DetailCellInformation(iconHref="#iconicon_product"
+                          :title="goods.name"
+                          :list="goodInformation")
+    DetailCellInformation(iconHref="#iconcaigou"
+                          title="采购信息"
+                          :list="purchaseInformation"
+                          :style="{marginTop:'10px'}"
+                          :showLine="false")
     .detail
       p {{`添加时间：${goodsTime}`}}
+    
     .edit-content
       .change-btn(@click="change")
         .btn-title
@@ -25,9 +18,13 @@
 </template>
 
 <script>
+import DetailCellInformation from '_components/product/detail_cell_information'
 import { getYMDDateDecimalString } from '_common/util'
 import { GoodsDetail } from '_api/product'
 export default {
+  components: {
+    DetailCellInformation
+  },
   data() {
     return {
       goods :{}
@@ -40,6 +37,20 @@ export default {
     },
     goodsTime() {
       return getYMDDateDecimalString(this.goods.time)
+    },
+    goodInformation() {
+      return [
+        `编码：${this.goods.id}`,
+        `单位：${this.goods.unit}`,
+        `安全库存：${this.goods.safety||'0'}`,
+        `类目：${this.goods.category}`
+      ]
+    },
+    purchaseInformation() {
+      return [
+        `单位成本价：${(this.goods.price+'/'+this.goods.unit)||'0'}`,
+        `采购损耗率：${this.goods.loss_coefficient}`
+      ]
     }
   },
   mounted() {
@@ -70,23 +81,19 @@ export default {
   .main
     width 100%
     height 100%
-    padding-top  15px
-    background-color #ffffff
-    .title
-      font-size 15px
-      font-weight 500
-      color #545454
-      margin-left 15px
+    background-color #E6EAED
     .detail 
-      margin-left 15px
+      margin-right 15px
       margin-top 10px
       font-size 14px
       font-weight 400
-      color #666666
+      color #999999
+      text-align right
     .edit-content
       position fixed
       height 62px
       width 100%
+      background-color #fff
       border-top 1px solid #cccccc
       display flex
       align-items center

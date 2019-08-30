@@ -8,14 +8,16 @@
 <script>
   import PurchaseList from "_components/card_list/_purchaselist";
   import {getPurchaseList} from "_api/purchase"
+  import NullPage from '_components/null_page/'
 
   export default {
     components: {
       PurchaseList,
+      NullPage
     },
     data() {
       return {
-        purchaseListType: 3,
+        purchaseListType: '3',
         jumpPath: '/purchase/purchase_list/purchase_detail',
         mDataList: {
           "1": [
@@ -84,7 +86,11 @@
             this.$toast(data.errmsg)
           } else {
             this.mDataList = data.list
-            console.log("mDataList="+this.mDataList)
+            Object.keys(this.mDataList).forEach(value,index,array=>{
+
+            })
+
+
           }
         } catch (e) {
           console.log("获取数据失败,失败原因"+ e.toString())

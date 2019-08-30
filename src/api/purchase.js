@@ -16,7 +16,7 @@ export function PurhcaseMain (params) {
  * @param path 1: 采购单列表， 2: 采购单交货率， 3: 采购单金额, 4: 供应商贡献度
  */
 export function PurhcaseMainCrank (params, path) {
-  return ArrangeHttpMethod('get')('/purchase/main/crank/' + (path || '') , params)
+  return ArrangeHttpMethod('get')('/purchase/main/crank' + (path || '') , params)
 }
 
 /**

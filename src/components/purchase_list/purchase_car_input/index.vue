@@ -11,13 +11,29 @@
             svg.ali_icon(aria-hidden="true")
               use(xlink:href='#iconicon_delete')
           span(class="clear-span") 清空
-      span(class="item-title") {{title+`(单位：`+unit+ `)`}}
+      .name_and_unit
+        span(class="item-name") {{title}}
+        span(class="item-unit") {{`(单位：`+unit+ `)`}}
+      .lower_count_package_num(v-if="isCreate != 'true'")
+        span(class="item_other") 最小起订量：{{lowestCountValue=== null ? 0 : lowestCountValue}}{{unit || ''}} | 最小包装量：{{lowestPackageNumValue=== null ? 0 : lowestPackageNumValue}}{{unit || ''}}
       .edit-content
-        span(class="item-tip") 采购价(元)
+        span(class="item-tip") {{priceName+`(元)`}}
         input(class="input"
-              placeholder="填写采购价"
+              :placeholder= "`填写${priceName}`"
               type="number"
-              v-model="value")
+              v-model="priceValue")
+      .edit-content(v-if="isCreate === 'true'")
+        span(class="item-tip") 最小起订量
+        input(class="input"
+          :placeholder= "`填写最小起订量`"
+          type="number"
+          v-model="countValue")
+      .edit-content(v-if="isCreate === 'true'")
+        span(class="item-tip") 最小包装量
+        input(class="input"
+          :placeholder= "`填写最小包装量`"
+          type="number"
+          v-model="packageNumValue")
       .add-material-content
         .add-btn(@click="addClick")
           span(class="btn-title") 添加
@@ -35,12 +51,28 @@ export default {
     show: {
       default: false
     },
-    inputValue: {
+    // 价格输入
+    inputPriceValue: {
+    },
+    // 最小包装量输入
+    lowestPackageNumValue: {
+    },
+    // 最小起订量输入
+    lowestCountValue: {
+    },
+    priceName: {
+      default: ''
+    },
+    isCreate: {
+      default: 'false'
     }
   },
   data() {
     return {
-      value:this.inputValue
+      priceValue:this.inputPriceValue,
+      countValue:this.lowestCountValue,
+      packageNumValue: this.lowestPackageNumValue,
+      showPriceName: ''
     }
   },
   methods: {
@@ -54,21 +86,27 @@ export default {
       this.$emit('clearClick')
     },
     addClick() {
-      this.$emit('addClick',this.value)
+      this.$emit('addClick',this.priceValue, this.countValue, this.packageNumValue)
     }
 
   },
   watch: {
     show(newValue, oldValue) {
-      this.value = this.inputValue
+      this.priceValue = this.inputPriceValue
       this.show = newValue
     },
-    inputValue(newValue) {
-      this.value = newValue
+    inputPriceValue(newValue) {
+      this.priceValue = newValue
     },
-    setTitle(title) {
-      this.title = title
-    }
+    lowestPackageNumValue(newValue) {
+      this.packageNumValue = newValue
+    },
+    lowestCountValue(newValue) {
+      this.countValue = newValue
+    },
+    title(newTitle) {
+      this.title = newTitle
+    },
   },
 }
 </script>
@@ -84,7 +122,6 @@ export default {
     .add-edit-content
       position absolute
       width 100%
-      height 188px
       background-color #ffffff
       bottom 0px
       display flex
@@ -121,16 +158,40 @@ export default {
             color #A1A1A1
             font-size 12px
             margin-left 5px
-      .item-title
-        font-size 15px
-        color #545454
-        font-weight 500
-        margin-left 15px
-        margin-top 15px
+      .name_and_unit
+        display flex
+        flex-direction row
+        margin-left 10px
+        margin-top 14px
+        align-items center
+        .item-name
+          height:22px;
+          font-size:16px;
+          font-weight:500;
+          color:rgba(51,51,51,1);
+          line-height:22px;
+          font-weight bold
+        .item-unit
+          height:17px;
+          font-size:12px;
+          font-family:PingFangSC-Regular;
+          font-weight:400;
+          color:rgba(102,102,102,1);
+          line-height:17px;
+      .lower_count_package_num
+        margin-left 10px
+        margin-bottom 14px
+        span
+          height:17px;
+          font-size:12px;
+          font-family:PingFangSC-Regular;
+          font-weight:400;
+          color:rgba(102,102,102,1);
+          line-height:17px;
       .edit-content
-        height 45px
+        height 44px
         width 100%
-        padding 0px 15px 0px 15px
+        padding 0 10px
         display flex
         align-items center
         justify-content space-between
@@ -138,13 +199,13 @@ export default {
         font-size 14px
         color #545454
       .input
-        width 80px
+        fixed 1
         height 100%
         font-size 14px
         text-align right
     .add-material-content
       width 100%
-      height 72px
+      height 52px
       display flex
       flex-direction row
       align-items center

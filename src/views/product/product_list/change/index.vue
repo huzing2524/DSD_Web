@@ -1,30 +1,33 @@
 <template lang="pug">
   .main
-    .goods-input
-      span 售价
-      input(placeholder="填写成本价",v-model="price")
-    .goods-input
-      span 安全库存
-      input(placeholder="填写安全库存",v-model="store")
-    .goods-input
-      span 生产损耗率
-      input(placeholder="0-0.99",v-model="lossRate")
+    InformationInput(title="安全库存" placeholder="请填写安全库存" :value="safety" v-model="safety")
+    InformationInput(title="单位产品售价（元）" placeholder="请填写单位售价" :value="price" v-model="price" :style="{marginTop:'10px'}")
+    InformationInput(title="最小起订量" placeholder="请填写最小起订量" :value="lowest_count" v-model="lowest_count")
+    InformationInput(title="最小包装量" placeholder="请填写最小包装量" :value="lowest_package" v-model="lowest_package")
+    InformationInput(title="生产损耗率" placeholder="请填写生产损耗率" :value="loss_coefficient" v-model="loss_coefficient" :style="{marginTop:'10px'}")
+    InformationInput(title="最小生产量" placeholder="请填写最小生产量" :value="lowest_product" v-model="lowest_product")
     StepButton(title="保存",class="step-button",@click="click")
 </template>
 
+
 <script>
 import { ProductPriceChange } from '_api/product'
+import InformationInput from '_components/product/information_input/'
 import StepButton from '_components/product/step_button/'
 import {mapState} from 'vuex'
 export default {
   components: {
-      StepButton
+      StepButton,
+      InformationInput
   },
   data() {
     return {
       price: '',
-      store: '',
-      lossRate: '',
+      safety: '',
+      loss_coefficient: '',
+      lowest_count: '',
+      lowest_package:'',
+      lowest_product: '',
       titleStyle: {
         fontSize:'40px'
       }
@@ -39,24 +42,45 @@ export default {
     }
   },
   mounted() {
-    this.price = this.productDetail.price || 0
-    this.store = this.productDetail.safety || 0
-    this.lossRate = this.productDetail.loss_coefficient || 0
+    this.price = this.productDetail.price || '0'
+    this.safety = this.productDetail.safety || '0'
+    this.loss_coefficient = this.productDetail.loss_coefficient || '0'
+    this.lowest_count = this.productDetail.lowest_count || '0'
+    this.lowest_package = this.productDetail.lowest_package || '0'
+    this.lowest_product = this.productDetail.lowest_product || '0'
   },
   methods: {
     async click() {
       // 判空
-      if(this.price.length <= 0) {
-        return this.$toast('请填写成本价')
-      }
-      if(this.store.length <= 0) {
+      if(!this.safety) {
         return this.$toast('请填写安全库存')
       }
-      if(this.lossRate.length <= 0) {
+      if(!this.price) {
+        return this.$toast('请填写单位产品售价')
+      }
+      if(!this.lowest_count) {
+        return this.$toast('请填写最小起订量')
+      }
+      if(!this.lowest_package) {
+        return this.$toast('请填写最小包装量')
+      }
+      if(!this.loss_coefficient) {
         return this.$toast('请填写生产损耗率')
       }
+      if(this.loss_coefficient>=1) {
+        return this.$toast('生产损耗率不能大于1')
+      }
+      if(!this.lowest_product) {
+        return this.$toast('请填写最小生产量')
+      }
       try {
-        const body = {price: this.price, safety: this.store, loss_coefficient: this.lossRate}
+        const body = {
+          price:this.price, 
+          safety:this.safety, 
+          loss_coefficient:this.loss_coefficient, 
+          lowest_package: this.lowest_package, 
+          lowest_product: this.lowest_product, 
+          lowest_count: this.lowest_count}
         const { data } = await ProductPriceChange(body,this.queryId)
         if(data.errmsg) {
           this.$toast(data.errmsg)

@@ -5,8 +5,24 @@
         .icon
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconicon_danhao")
-        span 入库单号
+        span 采购入库单
       .number_right {{listItem.id}}
+    .state
+      .item
+        .left
+          .icon
+            svg.ali_icon(aria-hidden="true")
+              use(xlink:href="#iconicon_zhaungtai")
+          span 采购入库状态
+        .right {{listItem.state | statePurchase}}
+    .time
+      .title
+        .icon
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href="#iconicon_time")
+        span 采购入库时间
+      .right(v-if="listItem.income.income_time") {{listItem.income.income_time | timeYMDHMFilter}}
+      .right(v-else) —
     .customer
       .title
         .icon
@@ -23,47 +39,38 @@
           span {{listItem.client.company_name ? listItem.client.company_name : '暂无'}}
           span {{listItem.client.phone ? listItem.client.phone : '暂无'}}
         .address {{listItem.client.address ? listItem.client.address : '暂无'}}
-    .status
-      .item
-        .left
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconicon_zhaungtai")
-          span 状态
-        .right {{listItem.state | statePurchase}}
-      .item(v-show="state==='1'")
-        .left
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconicon_time")
-          span 领料时间
-        .right {{listItem.income.income_time | timePointFilter}}
-    .pickinger(v-show="state==='1'")
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconbianzu")
-        span 入库人
-      .info
-        .phone
-          span {{listItem.income.income_person}}
-          p {{listItem.income.phone}}
     .product
       .title
         .icon
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconicon_product")
         span 存货
-      .item(v-for="(item,index) in listItem.purchase_list" :key="index")
-        .item_name {{item.category}}：{{item.name}}
-        .item_info
-          span {{item.count}}{{item.unit}}
-          span ￥{{item.price | formatFloatNum}}
-          span ￥{{item.money | formatFloatNum}}
+      .product_content
+        .item(v-for="(item,index) in listItem.purchase_list" :key="index")
+          .item_name
+            span {{item.category}}：{{item.name}}
+            p ￥{{item.price | formatFloatNum}}
+          .item_num ×{{item.count}}
       .total
         span 合计金额
         .num ￥
           p {{listItem.total_money | formatFloatNum}}
+    .pickinger(v-show="state==='1'")
+      .title
+        .icon
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href="#iconicon_shenpi")
+        span 入库人
+      .info
+        .name
+          .left
+            img(:src="listItem.income.image")
+            .phone
+              span {{listItem.income.income_person}}
+              p {{listItem.income.phone}}
+          .icon(@click="phoneCall(listItem.income.phone)")
+            svg.ali_icon(aria-hidden="true")
+              use(xlink:href="#iconphone")
     .options(v-show="state!=='1'")
       span 存货入库后，将状态设为：已入库
       button(@click="sendClick") 已入库
@@ -102,6 +109,10 @@
         this.state = this.$route.query.state || ''
         StorePurchaseDetail({id:this.id},'get').then((res) => {
           this.listItem = res.data
+          if(res.data.errmsg){
+            this.$toast('缺少参数')
+            return
+          }
           this.isLoad = true
         }).catch(() => {
           this.$toast('获取数据失败')
@@ -140,7 +151,19 @@
 
           }
         }).show()
-      }
+      },
+      phoneCall(phone) {
+        let u = navigator.userAgent
+        let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+        let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+        if (isAndroid) {
+          window.android.phoneCall(phone)
+        }else if(isIOS){
+          window.webkit && window.webkit.messageHandlers.phoneCall.postMessage(phone)
+        }else{
+          window.location.href = `tel://${phone}`
+        }
+      },
     }
   }
 </script>
@@ -148,7 +171,7 @@
 <style scoped lang="stylus">
   .purchase_detail
     background #E6EAED
-    padding-bottom 62px
+    padding-bottom 52px
     &.active
       padding-bottom 0
     .order_number
@@ -157,116 +180,83 @@
       justify-content space-between
       align-items center
       background #fff
-      padding 15px
-      margin-bottom 10px
+      padding 12px 10px
       .number_left
         display flex
         flex-direction row
         align-items center
         .icon
-          width 18px
-          height 20px
-          margin-right 7px
+          display flex
+          wh 16px 16px
+          margin-right 4px
         span
-          font-size 15px
-          color #545454
+          display flex
+          fsc 16px #333333
+          font-weight 600
       .number_right
         flex 1
         font-size 14px
-        color #999999
+        color #666666
         text-align right
         overflow hidden
         text-overflow ellipsis
         white-space nowrap
         margin-left 20px
-    .customer
+    .state
       display flex
-      flex-direction column
-      background #fff
-      padding 15px
-      margin-bottom 10px
-      .title
-        display flex
-        flex-direction row
-        align-items center
-        .icon
-          display flex
-          width 16px
-          height 18px
-          margin-right 8px
-        span
-          font-size 15px
-          color #545454
-      .info
-        display flex
-        flex-direction column
-        background #E9F5FF
-        border-radius 6px
-        padding 15px 21px 15px 15px
-        margin-top 15px
-        .name
-          display flex
-          flex-direction row
-          margin-bottom 15px
-          align-items center
-          .icon
-            width 20px
-            height 20px
-            margin-right 10px
-          span
-            font-size 14px
-            color #545454
-        .boss
-          display flex
-          flex-direction row
-          margin-bottom 15px
-          span
-            height 22px
-            line-height 22px
-            padding 0 12px
-            border 1px solid #999999
-            border-radius 11px
-            font-size 12px
-            color #999999
-            margin-right 10px
-        .address
-          display flex
-          font-size 14px
-          line-height 20px
-          color #545454
-
-    .status
-      display flex
-      flex-direction column
-      margin-bottom 10px
+      flex-direction row
+      padding 0 10px
+      bgf()
       .item
+        width 100%
         display flex
         flex-direction row
-        background #fff
-        padding 15px
         justify-content space-between
         align-items center
+        padding 12px 0
+        border-top 1px solid #EEEEEE
+        border-bottom 1px solid #EEEEEE
         .left
           display flex
           flex-direction row
           align-items center
           .icon
             display flex
-            width 18px
-            height 18px
-            margin-right 8px
+            wh 16px 16px
+            margin-right 4px
           span
-            font-size 15px
-            color #545454
+            display flex
+            fsc 16px #333333
+            font-weight 600
         .right
-          font-size 14px
-          color #999999
-    .pickinger
+          fsc 14px #666666
+    .time
+      display flex
+      flex-direction row
+      justify-content space-between
+      align-items center
+      margin-bottom 10px
+      background #fff
+      padding 12px 10px
+      .title
+        display flex
+        flex-direction row
+        align-items center
+        .icon
+          display flex
+          width 18px
+          height 18px
+          margin-right 4px
+        span
+          fsc 16px #333333
+          font-weight 600
+      .right
+        fsc 14px #666666
+    .customer
       display flex
       flex-direction column
       background #fff
-      padding 15px
-      margin-bottom 10px
+      padding 12px 10px
       .title
         display flex
         flex-direction row
@@ -274,90 +264,102 @@
         .icon
           display flex
           width 16px
-          height 18px
-          margin-right 8px
+          height 16px
+          margin-right 4px
         span
-          font-size 15px
-          color #545454
+          display flex
+          fsc 16px #333333
+          font-weight 600
       .info
         display flex
         flex-direction column
-        background #E9F5FF
+        background #F5FBFF
         border-radius 6px
-        padding 15px 21px 15px 15px
-        margin-top 15px
-        .phone
+        padding 12px 20px 12px 10px
+        margin-top 10px
+        .name
           display flex
           flex-direction row
-          justify-content space-between
+          margin-bottom 12px
+          align-items center
+          .icon
+            display flex
+            wh 18px 18px
+            margin-right 10px
           span
-            fsc(14px,#545454)
-          p
-            fsc(13px,#999999)
+            display flex
+            font-size 14px
+            color #333333
+        .boss
+          display flex
+          flex-direction row
+          margin-bottom 12px
+          span
+            height 28px
+            line-height 28px
+            padding 0 14px
+            border-radius 14px
+            font-size 12px
+            background #DEF2FF
+            color #666666
+            margin-right 10px
+        .address
+          display flex
+          font-size 13px
+          line-height 20px
+          color #666666
     .product
       background #fff
-      padding 15px 0 16px 15px
-      margin-bottom 40px
+      padding 0 10px
+      margin-bottom 10px
       .title
         display flex
         flex-direction row
         align-items center
-        margin-bottom 15px
+        margin-bottom 10px
+        padding-top 12px
+        border-top 1px solid #EEEEEE
         .icon
           display flex
-          width 18px
-          height 18px
-          margin-right 8px
+          width 16px
+          height 16px
+          margin-right 4px
         span
-          font-size 15px
-          color #545454
-      .item
+          fsc 16px #333333
+          font-weight 600
+      .product_content
         display flex
         flex-direction column
-        background #E9F5FF
+        background #F5FBFF
         border-radius 6px
-        padding 15px 0
-        margin-right 15px
-        margin-bottom 10px
-        .item_name
-          font-size 14px
-          color #464646
-          margin-left 15px
-        .item_info
+        padding 12px 10px
+        .item
           display flex
-          flex-direction row
-          margin-top 12px
-          span
-            flex 1
-            font-size 14px
-            color #7A7A7A
-            text-align center
-            position relative
-            &:nth-of-type(2)::before
-              content: ''
-              position absolute
-              left 0
-              top 50%
-              margin-top -2px
-              width 4px
-              height 4px
-              background #BEBEBE
-              border-radius 2px
-            &:nth-of-type(2)::after
-              content: ''
-              position absolute
-              right 0
-              top 50%
-              margin-top -2px
-              width 4px
-              height 4px
-              background #BEBEBE
-              border-radius 2px
+          flex-direction column
+          margin-bottom 12px
+          &:last-child
+            margin-bottom 0
+          .item_name
+            display flex
+            flex-direction row
+            justify-content space-between
+            span
+              fsc 14px #333333
+            p
+              fsc 14px #666666
+          .item_num
+            display flex
+            justify-content flex-end
+            fsc 12px #999999
+            margin-top 6px
       .total
         display flex
         flex-direction row
         justify-content space-between
-        padding-top 6px
+        padding 12px 0
+        /*border-bottom 1px solid #E4E4E4
+        &.border
+          border-bottom 0*/
         span
           font-size 14px
           color #464646
@@ -370,7 +372,54 @@
           margin-right 15px
           p
             font-size 18px
-            font-weight 500
+            font-weight 600
+    .pickinger
+      display flex
+      flex-direction column
+      background #fff
+      padding 12px 10px
+      margin-bottom 20px
+      .title
+        display flex
+        flex-direction row
+        align-items center
+        .icon
+          display flex
+          width 16px
+          height 16px
+          margin-right 4px
+        span
+          fsc 16px #333333
+          font-weight 600
+      .info
+        display flex
+        flex-direction column
+        background #F5FBFF
+        border-radius 6px
+        padding 12px 10px
+        margin-top 10px
+        .name
+          display flex
+          flex-direction row
+          justify-content space-between
+          align-items center
+          .left
+            display flex
+            flex-direction row
+            align-items center
+            img
+              wh 48px 48px
+              margin-right 10px
+            .phone
+              display flex
+              flex-direction column
+              span
+                fsc 14px #333333
+                margin-bottom 6px
+              p
+                fsc 14px #666666
+          .icon
+            wh 38px 38px
     .options
       width 100%
       position fixed
@@ -381,15 +430,15 @@
       padding 15px
       justify-content space-between
       align-items center
+      border-top 1px solid #CCCCCC
       span
-        font-size 13px
-        color #999999
+        fsc 12px #666666
       button
-        wh(92px,32px)
-        line-height 32px
-        color #4DA8EE
-        border 1px solid #4DA8EE
-        border-radius 16px
+        wh 80px 28px
+        line-height 28px
+        fsc 12px #1E9AFF
+        border 1px solid #1E9AFF
+        border-radius 14px
 </style>
 <style lang="stylus">
   .cube-dialog-content

@@ -48,7 +48,7 @@
                 use(xlink:href="#iconicon_ranking")
             span {{items.category}}：{{items.name}}
           .info
-            span 计划生产：{{items.plan_count}}
+            span 计划生产：{{items.plan_count.toFixed(2)}}
             p(v-if="item==='not_yet'") 生产时间：{{items.complete_time | timePointFilter}}
             p(v-if="item==='done'") 入库时间：{{items.income_time | timePointFilter}}
     .order_index(v-if="listType === 'purchase_warehousing'")
@@ -199,7 +199,10 @@
             state = '待审核'
             break
           case 1:
-            state = '已审核'
+            state = '已通过'
+            break
+          case 2:
+            state = '已取消'
             break
           default:
             state = ''
@@ -260,9 +263,11 @@
           flex-direction row
           align-items center
           .icon
+            display flex
             wh(20px,20px)
             margin-right 10px
           span
+            display flex
             font-size 15px
             color #545454
             overflow hidden

@@ -106,7 +106,7 @@ export default {
           width 30%
           height 50px
           .delete
-            color #F4616C
+            color #666666
             font-size 15px
           .edit
             color #1E9AFF

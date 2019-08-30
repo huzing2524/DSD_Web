@@ -41,7 +41,8 @@ export default {
       }
     },
     itemClick(item) {
-      this.$router.push(`/product/crafts_bom_list/material_select?process_id=${item.id}&id=${this.queryId}&name=${item.name}`)
+      this.$store.commit('product/Bom_Process',item)
+      this.$router.push(`/product/crafts_bom_list/material_select`)
     }
   },
 }

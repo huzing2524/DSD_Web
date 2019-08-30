@@ -81,7 +81,7 @@ export function OrderSub (params, methods, path) {
  * @constructor
  */
 export function OrderClients (params, methods, path) {
-  return ArrangeHttpMethod(methods)('/order/clients/' + (path || '') , params)
+  return ArrangeHttpMethod(methods)('/order/clients' + (path ? ('/' + path) : '') , params)
 }
 
 /**
@@ -104,8 +104,8 @@ export function OrderClientsDetail (params, methods,path) {
  * @returns {*}
  * @constructor
  */
-export function OrderClientSearchs (params, methods, path) {
-  return ArrangeHttpMethod('get')('/order/clients/search/' + (path || '') , params)
+export function OrderClientSearchs (params) {
+  return ArrangeHttpMethod('get')('/order/clients/search' , params)
 }
 
 /**

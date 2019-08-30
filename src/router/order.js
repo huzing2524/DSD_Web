@@ -24,11 +24,19 @@ export default [
     }
   },
   {
+    path: '/order/order_detail/ramark',
+    name: 'order_detail_remark',
+    component: () => import('_views/order/order_detail/remark/'),
+    meta: {
+      title: '订单详情'
+    }
+  },
+  {
     path: '/order/order_new',
     name: 'order_new',
     component: () => import('_views/order/order_new/'),
     meta: {
-      title: '新建订单'
+      title: '订单'
     }
   },
   {
@@ -48,6 +56,14 @@ export default [
     }
   },
   {
+    path: '/order/order_new/enter_remark',
+    name: 'order_create_enter_remark',
+    component: () => import ('_views/order/order_new/enter_remark/'),
+    meta: {
+      title: '新建订单',
+    }
+  },
+  {
     path: '/order/clients/client_add',
     name: 'client_add',
     component: () => import ('_views/order/clients/client_add/'),
@@ -60,7 +76,7 @@ export default [
     name: 'client_message_add',
     component: () => import ('_views/order/clients/client_message_add/'),
     meta: {
-      title: '供应商信息',// 点击搜索出来的客户名字后打开的详情，这个操作是为了添加客户的。
+      title: '客户信息',// 点击搜索出来的客户名字后打开的详情，这个操作是为了添加客户的。
     }
   },
   {

@@ -1,5 +1,5 @@
 <template lang="pug">
-  .main.full_box
+  .main(v-doc-title="title").full_box
     .item.ten_margin_bottom
       .input_box
         p 供应商名称
@@ -8,21 +8,20 @@
       .input_box.one_border_bottom(@click="chooiceAddress")
         p 供应商地址
         .right
-          span {{data.region}}
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconArrow")
+          input(placeholder="选择地址",v-model="data.region",readonly)
+          img(src="./arrow_right.png")
       .input_box.one_border_bottom()
         p 详细地址
         input(placeholder="填写详细地址",v-model="data.address")
+      .input_box.one_border_bottom()
+        p 送达天数
+        input(placeholder="填写送达天数",v-model="data.deliver_days", v-only-input-number)
     .item.ten_margin_bottom
       .input_box.one_border_bottom(@click="chooiceIndustry")
         p 所属行业
         .right
-          span {{data.industry}}
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconArrow")
+          input(placeholder="选择行业",v-model="data.industry",readonly)
+          img(src="./arrow_right.png")
     .item.ten_margin_bottom
       .input_box.one_border_bottom
         p 联系人
@@ -58,6 +57,7 @@
       return {
         type: '',
         id: '',
+        title: '',
         selectAddressPosition: [],
         selectIndustryPosition: [],
         data: {
@@ -69,6 +69,7 @@
           region:'',
           address: '',
           materials: [],
+          deliver_days: null,
         },
         selectedIndex: 0,
       }
@@ -77,6 +78,10 @@
       ...mapState('purchase', {
         getData: state => state.supplierDetail
       }),
+      ...mapState({
+        phoneReg: state => state.phoneReg
+      }),
+
     },
     mounted(){
       this.type = this.$route.query.type
@@ -86,6 +91,9 @@
         this.selectedIndex = this.data.position === '销售经理' ? 0 : 1
         this.getAddressPosition()
         this.getIndustryPosition()
+        this.title = '修改供应商'
+      } else {
+        this.title = '新建供应商'
       }
       this.addressPicker = this.$createCascadePicker({
         title: '选择地址',
@@ -166,7 +174,7 @@
         }
       },
       goNext() {
-        let {name,contact, phone,position,industry,region,address} = this.data;
+        let {name,contact,phone,position,industry,region,address,deliver_days} = this.data;
         if(!name || !contact || !phone || !position || !industry || !region || !address){
           this.$createToast({
             txt: '请完善信息再提交',
@@ -174,13 +182,15 @@
           }).show()
           return
         }
-        /*if (!this.phoneReg.test(this.data..phone)) {
-          this.$createToast({
-            txt: '请输入正确的手机号',
-            type: 'txt'
-          }).show()
-          return false
-        }*/
+        if (!this.phoneReg.test(this.data.phone)) {
+          this.$toast('请正确输入电话号码')
+          return
+        }
+        if(Number(deliver_days) === 0) {
+          this.$toast("送达天数应该大于0天")
+          return;
+        }
+        this.data.deliver_days = Number(deliver_days)
         this.updateSupplierMessage({
           ...this.data
         })
@@ -204,8 +214,10 @@
     flex-direction row
     justify-content space-between
     align-items center
-    padding 15px
+    padding 12px 10px
   .main
+    width 100%
+    height 100%
     background-color #E6EAED
     display flex
     flex-direction column
@@ -217,27 +229,32 @@
         align-items center
         row()
         &.one_border_bottom
-          border-bottom 1px solid #DDDDDD
+          border-bottom 1px solid #EEEEEE
         p
           display flex
-          fsc(14px, #545454)
+          fsc 14px #333333
           margin-right 10px
           align-items center
+          font-weight bold
+          line-height 20px
         input
           fsc(14px, #999999)
           text-align right
           flex 1
+          line-height 20px
         .right
           display flex
+          flex 1
           flex-direction row
-          span
+          align-items center
+          input
+            display flex
+            flex 1
             fsc(14px, #999999)
-            text-align center
-          .icon
-            wh(5px, 10px)
+          img
+            wh 5px 10px
             margin-left 7px
             display flex
-            align-items center
     .position
       display flex
       justify-content flex-end
@@ -255,20 +272,22 @@
     .save
       width 100%
       bgf()
+      position fixed
+      bottom 0
+      wh 100% 52px
+      font-size 14px
+      padding 12px
       display flex
       justify-content flex-end
-      position absolute
-      bottom 0
-      padding 15px
+      border-top 1px solid #CCCCCC
       button
-        wh(92px,32px)
-        line-height 32px
         display flex
         justify-content center
-        fsc 14px white
-        border:1px solid rgba(77,168,238,1);
-        outline none
-        color #4DA8EE
+        align-items center
+        height 28px
+        width 80px
+        background-color #1E9AFF
+        color #fff
         border-radius 16px
 </style>
 

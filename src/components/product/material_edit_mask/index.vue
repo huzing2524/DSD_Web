@@ -1,6 +1,6 @@
 <template lang="pug">
   .selected-mask(:style="{visibility:show?'visible':'hidden'}")
-    .selected-content
+    .selected-content(:style="{bottom:bottom+'px'}")
       .selected-title-content
         .selected-arrow-icon(@click="arrowClick")
           svg.ali_icon(aria-hidden="true")
@@ -47,6 +47,9 @@ export default {
     },
     subtitleKey: {
       default: ''
+    },
+    bottom: {
+      default: '80'
     }
   },
   methods: {

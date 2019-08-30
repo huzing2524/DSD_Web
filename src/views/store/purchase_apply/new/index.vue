@@ -1,13 +1,12 @@
 <template lang="pug">
   .apply_new.full_box
-    .reason_box
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_remarks")
-        span 申购原因
-      cube-input(type="text" :clearable="clearable" placeholder="填写申购原因..." v-model="listItem.remark")
-    .next
+    cube-textarea(
+    v-model="listItem.remark"
+    :placeholder="placeholder"
+    :maxlength="maxlength"
+    :autofocus="autofocus"
+    )
+    .save
       button(@click="toNext") 下一步
 </template>
 
@@ -16,11 +15,10 @@
   export default {
   data( ){
       return {
-        clearable:{
-          visible: true,
-          blurHidden: false
-        },
         listItem: {},
+        placeholder: '填写申购原因',
+        maxlength: 60,
+        autofocus: true
       }
     },
     mounted() {
@@ -49,47 +47,22 @@
 
 <style scoped lang="stylus">
   .apply_new
-    padding-top 10px
-    .reason_box
+    padding 10px
+    .save
       display flex
-      flex-direction column
-      padding 15px
-      margin-bottom 20px
-      bgf()
-      .title
-        display flex
-        flex-direction row
-        align-items center
-        margin-bottom 15px
-        .icon
-          display flex
-          wh(18px,18px)
-          margin-right 8px
-        span
-          display flex
-          fsc(15px,#545454)
-    .next
-      padding 0 20px
+      justify-content center
       button
-        width 100%
-        height 44px
-        line-height 44px
+        wh 180px 48px
+        line-height 48px
         background #1E9AFF
-        fsc(15px,#fff)
+        fsc 16px #fff
+        border-radius 24px
         border 0
-        outline 0
-        border-radius 22px
+        margin-top 30px
 </style>
-<style scoped lang="stylus">
-  .reason_box
-    .cube-input
-      background #E9F5FF
-      padding 5px
-      border-radius 6px
-      flex 1
-      .cube-input-field
-        border 0
-        outline 0
-      &:after
-        border 0
+<style lang="stylus">
+  .cube-textarea-wrapper::after
+    border 0
+  .cube-textarea
+    border-radius 8px
 </style>

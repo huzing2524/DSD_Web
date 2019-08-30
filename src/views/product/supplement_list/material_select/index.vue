@@ -1,20 +1,23 @@
 <template lang="pug">
   .main
+    .list-content
+      .list-item(v-for="(product, productIdx) in materialList" 
+              :key="product.name+productIdx"
+              @click="itemClick(product)")
+        span(class="item-name") {{product.name}}
+        .icon-selected(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].count>0)")
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href='#iconxuanz')
+        //- .item-select-count(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].count>0)")
+        //-   span(class="item-select-span") {{selectedProductDict[product.id].count >= 100 ? "···" : selectedProductDict[product.id].count}}
     MaterialEditMask(:show="isShowEditMask"
+              bottom='60'
               :items="Object.values(selectedProductDict)"
               @arrowClick="selectedMaskArrowClick"
               @clearClick="selectedMaskClearClick"
               @itemClick="selectedMaskItemClick")
       template(v-slot:title="slotProps") {{slotProps.item.name}}
       template(v-slot:subtitle="slotProps") {{`${slotProps.item.count}条`}}
-    .list-content
-      .list-item(v-for="(product, productIdx) in materialList" 
-              :key="product.name+productIdx"
-              @click="itemClick(product)")
-        span(class="item-name") {{product.name}}
-        .item-select-count(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].count>0)")
-          span(class="item-select-span") {{selectedProductDict[product.id].count >= 100 ? "···" : selectedProductDict[product.id].count}}
-
     .select-content
       //- span(class="title" :style="{visibility:!isShowEditMask?'visible':'hidden'}") {{`工序：${queryName}`}}
       .save-row
@@ -64,10 +67,6 @@ export default {
       supplementRemark: state => state.supplementRemark,
       supplementTask: state => state.supplementTask
     }),
-    // lch  --- 这个地方缺了productId
-    // queryId() {
-    //   return this.$route.query.id
-    // }
   },
   mounted() {
     this.initData()
@@ -86,13 +85,14 @@ export default {
 
     // 计算总条数，筛选选中的产品
     getTotalCount() {
-      let count = 0
-      this.selectedProductArr = []
-      Object.values(this.selectedProductDict).forEach(product => {
-        this.selectedProductArr.push(product)
-        count += product.count
-      })
-      this.totalCount = count >= 100 ? '···' : count
+      // let count = 0
+      // this.selectedProductArr = []
+      // Object.values(this.selectedProductDict).forEach(product => {
+      //   this.selectedProductArr.push(product)
+      //   count += product.count
+      // })
+      // this.totalCount = count >= 100 ? '···' : count
+      this.totalCount = Object.values(this.selectedProductDict).length
     },
     itemClick(product) {
       this.currentInputProduct = product
@@ -105,13 +105,12 @@ export default {
     },
     // 点击添加物料时调用
     inputMaskAddClick(value) {
-      this.currentInputProduct['count'] = parseInt(value)
-      this.selectedProductDict[this.currentInputProduct.id] = this.currentInputProduct
       this.isShowInputMask = false
       if(value > 0) {
+        this.currentInputProduct['count'] = parseInt(value)
         this.selectedProductDict[this.currentInputProduct.id] = this.currentInputProduct
+        this.getTotalCount()
       }
-      this.getTotalCount()
     },
     // 点击输入框的清空按钮
     inputMaskClearClick() {
@@ -192,6 +191,12 @@ export default {
         height 50px
         margin-top 10px
         padding 0px 15px 0px 15px
+        .icon-selected
+          height 18px
+          width 18px
+          display flex
+          justify-content center
+          align-items center
         .item-name
           font-size 14px
           color #545454
@@ -220,14 +225,16 @@ export default {
         font-size 12px
         color #545454
         margin-top 8px
+        margin-bottom 8px
       .save-row
         display flex
         flex-direction row
         align-items center
         justify-content space-between
         height 60px
-        padding 0px 15px 10px 10px
+        padding 0px 15px 0px 10px
         width 100%
+        border-top 1px #cccccc solid
         .icon-car
           height 28px
           width 36px

@@ -1,104 +1,69 @@
-<template>
-  <div class="order_select_product">
-    <div class="order_select_product_list">
-      <div class="product_list" v-if="isLoad">
-        <div class="product_list_item" v-for="(item,index) in productList" :key="index+'B'">
-          <div v-if="item.category_name">
-            <div class="product_list_header">
-              {{item.category_name}}
-            </div>
-            <div class="product_list-content" v-for="(productListItem,indexs) in item.list" :key="indexs+'C'"
-                 @click="confirmProducts(productListItem)">
-              <div class="product_list_text">
-                <div class="product_list_text_value">
-                  <p>{{productListItem.name}}</p>
-                  <p>库存：{{productListItem.stock_count}}{{productListItem.unit}}</p>
-                </div>
-                <div class="product_list_text_point" v-if="productListItem.dealInfo.num>0">
-                  {{productListItem.dealInfo.num}}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="select_product_next next_box">
-      <div class="car_box" @click="toggleShowSelectedBox">
-        <div class="car active" :class="{active: productBag.num>0}">
-          <div class="car_point" v-if="productBag.num>0"><p>{{productBag.num}}</p></div>
-        </div>
-        <div class="money">￥{{productBag.money || 0}}</div>
-      </div>
-      <div class="next_btn" @click="toProductOutgoing">下一步</div>
-    </div>
-    <div class="selected_box" v-if="isShowSelectedBox" @click="toggleShowSelectedBox">
-      <div class="select_product_next next_box">
-        <div class="car_box">
-          <div class="car active" :class="{active: productBag.num>0}">
-            <div class="car_point" v-if="productBag.num>0"><p>{{productBag.num}}</p></div>
-          </div>
-          <div class="money">￥{{productBag.money || 0}}</div>
-        </div>
-        <div class="next_btn" @click="toProductOutgoing">下一步</div>
-      </div>
-      <div class="selected_list">
-        <div class="close_btn">收起 <img src="./pack_up_icon.png"></div>
-        <div class="content">
-          <div v-for="(box, index) in this.productList" :key="index">
-            <div class="item"
-                 v-for="(item, indexs) in box.list"
-                 :key="indexs + 'S'"
-                 @click.stop="confirmProducts(item,1)"
-                 v-show="item.dealInfo.isIn"
-            >
-              <div class="product_info">
-                <p>{{item.name}}</p>
-                <p>库存：{{item.count}}{{item.unit}}</p>
-              </div>
-              <div class="arrow_icon"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="input_box" v-if="isShowInputBox" @click="toggleShowInputBox">
-      <div class="content" @click.stop="()=>{}">
-        <div class="close_btns" @click="toggleShowInputBox">收起 <img src="./pack_up_icon.png"></div>
-        <div class="title item">
-          <div class="info">
-            <p>{{activeItem.name}}</p>
-            <p>库存：{{activeItem.stock_count}}{{activeItem.unit}}</p>
-          </div>
-          <div class="close_btn" @click="removeProduct" v-if="activeItem.dealInfo.num>0"><img src="./trash_icon.png">
-            <p>清空</p></div>
-          <div class="close_btn_b" @click="toggleShowInputBox" v-else><img src="./close_icon.png"></div>
-        </div>
-        <div class="item">
-          <p>数量</p>
-          <input type="number" placeholder="填写数量" v-model="activeItem.dealInfo.num" @input="inputBoxInput(1)">
-        </div>
-        <div class="price item">
-          <p>价格 (元)</p>
-          <div class="input_toggle">
-            <input type="number" placeholder="填写单价" v-if="isPrice" v-model="activeItem.dealInfo.price"
-                   @input="inputBoxInput(2)">
-            <input type="number" placeholder="填写总价" v-else v-model="activeItem.dealInfo.money"
-                   @input="inputBoxInput(3)">
-            <div class="toggle_btn" @click="() => {isPrice = !isPrice}">
-              <p>单价</p>
-              <img src="./switch_icon.png">
-            </div>
-          </div>
-        </div>
-        <div class="money item">
-          <div class="money_value">￥{{activeItem.dealInfo.money? Common.toFixedNum(activeItem.dealInfo.money, 4) : 0}}
-          </div>
-          <div class="sub_btn" @click="addProduct">添加产品</div>
-        </div>
-      </div>
-    </div>
-  </div>
+<template lang="pug">
+  .order_select_product
+    .order_select_product_list
+      div(v-doc-title="orderSub.isModify?'修改订单':''")
+      .product_list(v-if="isLoad")
+        .product_list_item(v-for="(item,indexs) in productList" :key="indexs+'C'" @click="confirmProducts(item)")
+          .product_list_text
+            .product_list_text_value
+              p {{item.name}}
+            .product_list_text_point(v-if="item.dealInfo.isIn")
+              .icon
+                svg.ali_icon(aria-hidden="true")
+                  use(xlink:href="#iconxuanz")
+    .select_product_next.next_box
+      .car_box(@click="toggleShowSelectedBox")
+        .car.active(:class="{active: productBag.num>0}")
+          .car_point(v-if="productBag.num>0")
+            p {{productBag.num}}
+        .money ￥{{productBag.money || 0}}
+      .next_btn(@click="toProductOutgoing") 下一步
+    .selected_box(v-if="isShowSelectedBox" @click="toggleShowSelectedBox")
+      .select_product_next.next_box
+        .car_box
+          .car.active(:class="{active: productBag.num>0}")
+            .car_point(v-if="productBag.num>0")
+              p {{productBag.num}}
+          .money ￥{{productBag.money || 0}}
+        .next_btn(@click="toProductOutgoing") 下一步
+      .selected_list
+        .close_btn 收起
+          img(src="./pack_up_icon.png")
+        .content
+          .item(
+            v-for="(item, indexs) in productList"
+            :key="indexs + 'S'"
+            @click.stop="confirmProducts(item,1)"
+            v-show="item.dealInfo.isIn"
+          )
+            .product_info
+              p {{item.name}}
+              p 单位：{{item.unit}}
+              p {{item.dealInfo.num}}&nbsp;x&nbsp;{{item.unit_price}}
+            .arrow_icon
+    .input_box(v-if="isShowInputBox" @click="toggleShowInputBox")
+      .content(@click.stop="()=>{}")
+        .close_btns(@click="toggleShowInputBox") 收起
+          img(src="./pack_up_icon.png")
+        .title.item
+          .info
+            p {{activeItem.name}}
+            p 单位售价：{{activeItem.unit_price}}/{{activeItem.unit}}
+            p 最小采购量：{{activeItem.lowest_count}} | 最小包装量{{activeItem.lowest_package}}
+          .close_btn(@click="removeProduct" v-if="activeItem.dealInfo.num>0")
+            img(src="./trash_icon.png")
+            p 清空
+          .close_btn_b(@click="toggleShowInputBox" v-else)
+            img(src="./close_icon.png")
+        .item.num
+          p 数量
+          .change_num
+            .down(@click="downNum") -
+            input(type="number" @input="inputBoxInput()" v-model="activeItem.dealInfo.num")
+            .up(@click="upNum") +
+        .money.item
+          .money_value ￥{{activeItem.dealInfo.money? Common.toFixedNum(activeItem.dealInfo.money, 4) : 0}}
+          .sub_btn(@click="addProduct") 添加产品
 </template>
 
 <script>
@@ -120,9 +85,9 @@
         isPrice: true,
         defultDealInfo: {
           isIn: false,
-          num: '',
-          price: '',
-          money: ''
+          num: 0,
+          price: 0,
+          money: 0
         },
         productBag: {
           num: 0,
@@ -144,29 +109,47 @@
         'updateOrderSub'
       ]),
       getOrderProductList() {
-        OrderProductList({}, 'get', ).then((res) => {
+        if (!this.orderSub.customer) {
+          if (this.$route.query.from) {
+            this.$router.push(this.$route.query.from)
+          } else {
+            this.$router.go(-1)
+          }
+          return
+        }
+        if (this.orderSub.order_type === '2') {
+          this.productList = this.orderSub.products
+          this.productList.forEach((item) => {
+            item.dealInfo = this._.cloneDeep(this.defultDealInfo)
+            if (this.orderSub.isModify) {
+              this.orderSub.products.forEach(items => {
+                if (item.id === items.id) {
+                  item.dealInfo.isIn = true
+                  item.dealInfo.num = items.count
+                  item.dealInfo.money = items.count * items.unit_price
+                }
+              })
+            }
+          })
+          this.getVanResult()
+          this.isLoad = true
+          return
+        }
+        OrderProductList({client_id: this.orderSub.customer.id || this.orderSub.customer.client_id}, 'get').then((res) => {
           this.productList = res.data.list
           this.productList.forEach((item) => {
-            item.list.forEach((items) => {
-              if (this.orderSub.productBag) {
-                this.orderSub.productBag.list.forEach(itemss => {
-                  if (items.id === itemss.id) {
-                    items.isSelected = true
-                    items.dealInfo = {...item.dealInfo, ...itemss.dealInfo}
-                    items.category_name = item.category_name
-                  } else {
-                    items.isSelected = false
-                    items.dealInfo = this._.cloneDeep(this.defultDealInfo)
-                    items.category_name = item.category_name
-                  }
-                })
-              } else {
-                items.isSelected = false
-                items.dealInfo = this._.cloneDeep(this.defultDealInfo)
-                items.category_name = item.category_name
-              }
-            })
+            item.dealInfo = this._.cloneDeep(this.defultDealInfo)
+            if (this.orderSub.isModify) {
+              this.orderSub.products.forEach(items => {
+                if (item.id === items.id) {
+                  item.dealInfo.isIn = true
+                  item.dealInfo.num = items.count
+                  item.dealInfo.money = items.count * items.unit_price
+                }
+              })
+            }
           })
+          this.getVanResult()
           this.isLoad = true
         })
       },
@@ -178,7 +161,6 @@
           this.isOpenSelectedBox = false
         }
         this.activeItem = this._.cloneDeep(item)
-        console.log(this.activeItem)
         this.toggleShowInputBox()
       },
       toProductOutgoing() {
@@ -186,7 +168,7 @@
           this.$toast('请添至少选择一种产品')
           return
         }
-        this.$router.push(this.$route.query.from)
+        this.$router.push('/order/order_new/enter_remark')
       },
       toggleShowInputBox() {
         if (this.isShowInputBox && this.isOpenSelectedBox) {
@@ -203,11 +185,7 @@
         this.isShowSelectedBox = !this.isShowSelectedBox
       },
       inputBoxInput() {
-        if (this.isPrice) {
-          this.activeItem.dealInfo.money = (this.activeItem.dealInfo.num * this.activeItem.dealInfo.price) || 0
-        } else {
-          this.activeItem.dealInfo.price = Common.toFixedNum((this.activeItem.dealInfo.money / this.activeItem.dealInfo.num), 4) || 0
-        }
+        this.activeItem.dealInfo.money = (this.activeItem.dealInfo.num * this.activeItem.unit_price) || 0
       },
       getVanResult() {
         this.productBag = {
@@ -216,13 +194,11 @@
           list: []
         }
         this.productList.forEach(item => {
-          item.list.forEach(items => {
-            if (items.dealInfo.isIn === true) {
-              this.productBag.num += Number(items.dealInfo.num)
-              this.productBag.money += Number(items.dealInfo.money)
-              this.productBag.list.push(items)
-            }
-          })
+          if (item.dealInfo.isIn === true) {
+            this.productBag.num += Number(item.dealInfo.num)
+            this.productBag.money += Number(item.dealInfo.money)
+            this.productBag.list.push(item)
+          }
         })
         this.updateOrderSub({
           productBag: this.productBag
@@ -232,12 +208,10 @@
         this.productBag.num = 0
         this.productBag.money = 0
         this.productList.forEach(item => {
-          item.list.forEach(items => {
-            if (items.id === this.activeItem.id) {
-              items.dealInfo = this._.cloneDeep(this.defultDealInfo)
-              items.dealInfo.isIn = false
-            }
-          })
+          if (item.id === this.activeItem.id) {
+            item.dealInfo = this._.cloneDeep(this.defultDealInfo)
+            item.dealInfo.isIn = false
+          }
         })
         this.getVanResult()
         this.toggleShowInputBox()
@@ -248,23 +222,43 @@
       addProduct() {
         this.productBag.num = 0
         this.productBag.money = 0
-        if (!this.activeItem.dealInfo.num || !this.activeItem.dealInfo.price) {
-          this.$toast('信息输入有误');
-          return;
+        if (!this.activeItem.dealInfo.num) {
+          this.$toast('信息输入有误')
+          return
+        }
+        if (this.activeItem.dealInfo.num < this.activeItem.lowest_count) {
+          this.$toast('采购数量小于最小采购量')
+          return
+        }
+        if (this.activeItem.dealInfo.num % this.activeItem.lowest_package > 0) {
+          this.$toast('信息输入有误')
+          return
         }
         this.productList.forEach(item => {
-          item.list.forEach(items => {
-            if (items.id === this.activeItem.id) {
-              items.dealInfo = this._.cloneDeep(this.activeItem.dealInfo)
-              items.dealInfo.isIn = true
-            }
-          })
+          if (item.id === this.activeItem.id) {
+            item.dealInfo = this._.cloneDeep(this.activeItem.dealInfo)
+            item.dealInfo.isIn = true
+          }
         })
         this.getVanResult()
         this.toggleShowInputBox()
         this.updateOrderSub({
           originData: this.productList
         })
+      },
+      downNum() {
+        if (Number(this.activeItem.dealInfo.num) <= 0) {
+          return
+        } else if (Number(this.activeItem.dealInfo.num) < this.activeItem.lowest_package) {
+          this.activeItem.dealInfo.num = 0
+        } else {
+          this.activeItem.dealInfo.num = (Number(this.activeItem.dealInfo.num) - this.activeItem.lowest_package)
+        }
+        this.activeItem.dealInfo.money = this.activeItem.dealInfo.num * this.activeItem.unit_price
+      },
+      upNum() {
+        this.activeItem.dealInfo.num = (Number(this.activeItem.dealInfo.num) + this.activeItem.lowest_package)
+        this.activeItem.dealInfo.money = this.activeItem.dealInfo.num * this.activeItem.unit_price
       }
     }
   }
@@ -290,48 +284,35 @@
         box-sizing border-box
 
         .product_list_item
-          .product_list_header
-            color $blackColor
-            margin-bottom 10px
-            font-size $middleFontSize
+          flr()
+          flex-direction column
+          height 60px
+          border-radius 6px
+          background #fff
+          padding 10px 10px
+          box-sizing border-box
+          margin-bottom 10px
 
-          .product_list-content
-            border-radius 10px
-            background #fff
-            padding 12px 16px
-            box-sizing border-box
-            margin-bottom 10px
+          .product_list_text
+            display flex
+            align-items center
+            justify-content space-between
 
-            .product_list_text
+            .product_list_text_value
               display flex
-              align-items center
-              justify-content space-between
-              color $blackColor
-              font-size $middleFontSize
+              flex-direction column
 
-              .product_list_text_value
-                display flex
-                flex-direction column
+              p
+                &:nth-of-type(1)
+                  fsc 14px #333
 
-                p
-                  &:nth-of-type(1)
-                    font-size $middleFontSize
-                    color $blackColor
-
-                  &:nth-of-type(2)
-                    font-size $smallFontSize
-                    color $lightBlackColor
-                    margin-top 6px
-
-              .product_list_text_point
-                display block
-                background #FF3301
-                padding 1px 7px
-                border-radius 20px
-                color #FFF
-                font-size 12px
-                font-weight 200
-
+                &:nth-of-type(2)
+                  fsc 12px #666
+                  margin-top 6px
+            .product_list_text_point
+              wh 20px 20px
+              .icon
+                wh 100% 100%
     .select_product_next
       position relative
       z-index 1
@@ -469,8 +450,12 @@
                   font-size $middleFontSize
                   color $blackColor
 
-
                 &:nth-of-type(2)
+                  font-size $smallFontSize
+                  color $lightBlackColor
+                  margin-top 6px
+
+                &:nth-of-type(3)
                   font-size $smallFontSize
                   color $lightBlackColor
                   margin-top 6px
@@ -531,14 +516,12 @@
           .info
             p
               &:nth-of-type(1)
-                font-size $middleFontSize
-                color $blackColor
-
-
+                fsc 16px #333
               &:nth-of-type(2)
-                font-size $smallFontSize
-                color $lightBlackColor
-                margin-top 6px
+                fsc 12px #666
+                margin 8px 0 8px
+              &:nth-of-type(3)
+                fsc 12px #666
 
           .close_btn
             margin-top -20px
@@ -559,25 +542,21 @@
               width 20px
               height 20px
 
-        .price
-          .input_toggle
+        .num
+          .change_num
             display flex
-
-            .toggle_btn
-              display flex
-              align-items center
-              justify-content center
-              width 48px
-              height 20px
-              border 1px solid #0099FF
-              margin-left 10px
-              color #0099FF
-              font-size 10px
-
-              img
-                width 20px
-                height 20px
-
+            border-radius 4px
+            overflow hidden
+            border 1px solid #EEE
+            .down,.up
+              bg #EEE
+              wh 36px 30px
+              fsc 22px #333
+              fct()
+            input
+              wh 44px 30px
+              fsc 14px #666
+              text-align center
         .money
           .money_value
             color #FF6602

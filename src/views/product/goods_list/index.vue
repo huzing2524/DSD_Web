@@ -9,6 +9,7 @@
     NullPage(v-show="dataList.length<=0")
     NewIcon(to='/product/goods_list/add'
             :iconStyle="{position:'absolute'}")
+    
 </template>
 
 <script>

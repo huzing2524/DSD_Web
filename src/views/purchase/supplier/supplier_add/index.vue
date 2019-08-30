@@ -15,33 +15,18 @@
 
 <script>
   import { SupplierSearch } from '../../../../api/purchase'
+  import { mapActions} from "vuex";
   export default {
     data() {
       return {
-        resultDatas:[
-          // {
-          //   id:'001',
-          //   name: '深圳大数点科技有限公司',
-          // },
-          // {
-          //   id:'002',
-          //   name: '东莞市永明劳保用品有限公司',
-          // },
-          /*{
-            "id": "LFJts5rRjVZ4f6dkiQ",
-            "name": "fac_app_10312"
-          }, {
-            "id": "2rL3UDkJy3NUJedCKY",
-            "name": "fac_app_10313"
-          }, {
-            "id": "xujZAfTMB4RHfx4sKU",
-            "name": "fac_app_10314"
-          }*/
-        ],
+        resultDatas:[],
         searchName:''
       }
     },
     methods: {
+      ...mapActions('purchase', [
+        'updatePurchase'
+      ]),
       toAddSupplier() {
         this.$router.push(`/purchase/supplier/supplier_create?type=create`)
       },
@@ -65,7 +50,23 @@
       itemClick(item) {
         console.log("item="+item)
         // 打开添加客户的客户信息界面
+        this.clearSupplierVuex()
         this.$router.push(`/purchase/supplier/supplier_message_chooice?id=${item}`)
+      },
+      clearSupplierVuex() {
+        let data = {
+          name: '',
+          contact: '',
+          phone: '',
+          position: '',
+          industry: '',
+          region:'',
+          address: '',
+          materials: [],
+        }
+        this.updatePurchase({
+          ...data
+        })
       }
     },
   }

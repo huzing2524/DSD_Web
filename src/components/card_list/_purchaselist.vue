@@ -1,7 +1,7 @@
 <!--有图片的-->
 <template lang="pug">
   .card_list.full_box(ref="listContainer")
-    .order_index(v-if="listType === 1")
+    .order_index(v-if="listType === '1'")
       .list_tab
         .tab_item(v-for="(item, idx) in Object.keys(dataList)" :key="idx" class="normalColor"  @click="scrollAdd(idx)" ) {{item | purchaseListState}} {{dataList[Object.keys(dataList)[idx]].length}}
       .list_card(v-for="(item, idx) in Object.keys(dataList)" ref="cardItem")
@@ -15,7 +15,7 @@
           .info
             span {{items.products}}
             p {{getYMDHMDateString(items.time)}}
-    .order_index(v-else="listType === 2")
+    .order_index(v-else-if="listType === '2'")
       .list_tab
         .tab_item(v-for="(item, idx) in Object.keys(dataList)" :key="idx" class="normalColor"  @click="scrollAdd(idx)" ) {{item | purchaseArrivalState}} {{dataList[Object.keys(dataList)[idx]].length}}
       .list_card(v-for="(item, idx) in Object.keys(dataList)" ref="cardItem")
@@ -29,11 +29,11 @@
           .info
             span {{items.products}}
             p {{getYMDHMDateString(items.time)}}
-    .order_index(v-else="listType === 3")
+    .order_index(v-else-if="listType === '3'")
       .list_tab
-        .tab_item(v-for="(item, idx) in Object.keys(dataList)" :key="idx" class="normalColor"  @click="scrollAdd(idx)" ) {{item}} {{dataList[Object.keys(dataList)[idx]].length}}
+        .tab_item(v-for="(item, idx) in Object.keys(dataList)" :key="idx" class="normalColor"  @click="scrollAdd(idx)" ) {{item | purchaseMoneyState}} {{dataList[Object.keys(dataList)[idx]].length}}
       .list_card(v-for="(item, idx) in Object.keys(dataList)" ref="cardItem")
-        p.card_title {{item}}
+        p.card_title {{item | purchaseMoneyState}}
         router-link.card_item(v-for="(items, idxs) in dataList[Object.keys(dataList)[idx]]" :key="idxs" :to="{ path:jumpPath, query:{id:items.id}}" )
           .name
             .icon
@@ -43,11 +43,11 @@
           .info
             span {{items.products}}
             p {{getYMDHMDateString(items.time)}}
-    .order_index(v-else="listType === 4")
+    .order_index(v-else-if="listType === '4'")
       .list_tab
-        .tab_item(v-for="(item, idx) in Object.keys(dataList)" :key="idx" class="normalColor"  @click="scrollAdd(idx)" ) {{Object.keys(dataList)[idx]}} {{dataList[Object.keys(dataList)[idx]].length}}
+        .tab_item(v-for="(item, idx) in Object.keys(dataList)" :key="idx" class="normalColor"  @click="scrollAdd(idx)" )  {{getField(item)}} {{dataList[Object.keys(dataList)[idx]].length}}
       .list_card(v-for="(item, idx) in Object.keys(dataList)" ref="cardItem")
-        p.card_title {{Object.keys(dataList)[idx]}}
+        p.card_title {{getField(item)}}
         router-link.card_item(v-for="(items, idxs) in dataList[Object.keys(dataList)[idx]]" :key="idxs" :to="{ path:jumpPath, query:{id:items.id}}" )
           .name
             .icon
@@ -57,7 +57,7 @@
           .info
             span {{items.products}}
             p {{getYMDHMDateString(items.time)}}
-    .order_index(v-else="listType === 5")
+    .order_index(v-else-if="listType === '5'")
       .list_tab
         .tab_item(v-for="(item, idx) in Object.keys(dataList)" :key="idx" class="normalColor"  @click="scrollAdd(idx)" ) {{item | purchaseExecutiveConditionState}} {{dataList[Object.keys(dataList)[idx]].length}}
       .list_card(v-for="(item, idx) in Object.keys(dataList)" ref="cardItem")
@@ -87,14 +87,14 @@
     props: {
       dataList: Object,
       jumpPath: String,
-      listType: Number,
+      listType: String,
     },
     computed: {
 
     },
     filters: {
       // 1: 待审批， 2: 已审核待确认 3：采购中, 4: 运输中, 5：已入库, 6:已取消
-      purchaseListState(val) {
+      purchaseListState(val) {// 1
         let state = ''
         switch (parseInt(val)) {
           case 1:
@@ -120,6 +120,7 @@
         }
         return state
       },
+      // 2 采购到货率
       purchaseArrivalState(val) {
         let state = ''
         switch (parseInt(val)) {
@@ -137,7 +138,23 @@
         }
         return state
       },
-      purchaseExecutiveConditionState(val) {
+      // 3 采购金额
+      purchaseMoneyState(val) {
+        let state = ''
+        switch (parseInt(val)) {
+          case 1:
+            state = '新供应商'
+            break
+          case 2:
+            state = '老供应商'
+            break
+          default:
+            state = ''
+        }
+        return state
+      },
+      // 4 采购准交排行榜
+      purchaseSubmitOntimeRankinglistState(val) {
         let state = ''
         switch (parseInt(val)) {
           case 1:
@@ -154,21 +171,8 @@
         }
         return state
       },
-      purchaseMoneyState(val) {
-        let state = ''
-        switch (parseInt(val)) {
-          case 1:
-            state = '新供应商'
-            break
-          case 2:
-            state = '老供应商'
-            break
-          default:
-            state = ''
-        }
-        return state
-      },
-      purchaseSubmitOntimeRankinglistState(val) {
+      // 5 采购执行情况
+      purchaseExecutiveConditionState(val) {
         let state = ''
         switch (parseInt(val)) {
           case 1:
@@ -198,6 +202,13 @@
             clearInterval(t)
           }
         }, 15)
+      },
+      getField(item) {
+        if(item === 'null' || item === '' || item === undefined) {
+          return '佚名'
+        } else {
+          return item
+        }
       }
     }
   }

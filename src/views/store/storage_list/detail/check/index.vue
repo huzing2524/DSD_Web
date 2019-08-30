@@ -18,7 +18,7 @@
       type="text"
       :clearable="clearable"
       placeholder="盘点原因"
-      v-model="listItem.remark")
+      v-model="listItem.reason")
     .save
       button(@click="saveClick") 保存
 </template>
@@ -54,14 +54,14 @@
         this.listItem = this.storeSub.storageDetail
       },
       saveClick(){
-        if(!this.listItem.remark){
+        if(!this.listItem.reason){
           this.$toast('请填写盘点原因')
           return
         }
         StorecheckNew({
           id: this.listItem.id,
           update: parseInt(this.listItem.update),
-          remark: this.listItem.remark,
+          reason: this.listItem.reason,
         },'post',this.type).then((res) => {
           if (parseInt(res.data.res) === 0) {
             this.$toast(`盘点成功`)

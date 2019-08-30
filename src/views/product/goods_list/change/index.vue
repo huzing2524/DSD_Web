@@ -1,34 +1,28 @@
 <template lang="pug">
   .main
-    .goods-input
-      span 售价
-      input(placeholder="填写成本价",v-model="price")
-    .goods-input
-      span 最小采购
-      input(placeholder="填写最小采购量",v-model="count")
-    .goods-input
-      span 安全库存
-      input(placeholder="填写最安全库存",v-model="store")
-    .goods-input
-      span 生产损耗率
-      input(placeholder="0-0.99",v-model="lossRate")
+    InformationInput(title="安全库存" placeholder="请填写安全库存" :value="store" v-model="store")
+    InformationInput(title="单位产品售价（元）" placeholder="请填写安全库存" :value="price" v-model="price" :style="{marginTop:'10px'}")
+    InformationInput(title="采购损耗率" placeholder="请填写安全库存" :value="lossRate" v-model="lossRate")
+
     StepButton(title="保存",class="step-button",@click="changeData")
 </template>
 
 <script>
+import InformationInput from '_components/product/information_input/'
 import { GoodsPriceChange } from '_api/product'
 import StepButton from '_components/product/step_button/'
 import {mapState} from 'vuex'
 
 export default {
   components: {
-      StepButton
+      StepButton,
+      InformationInput,
   },
   data() {
     return {
       price: '',
       count: '',
-      store: '',
+      store: '20',
       lossRate: '',
       titleStyle: {
         fontSize:'40px'
@@ -45,10 +39,10 @@ export default {
     }
   },
   mounted() {
-    this.price = this.goodsDetail.price || 0
-    this.count = this.goodsDetail.lowest_count || 0
-    this.store = this.goodsDetail.safety || 0
-    this.lossRate = this.goodsDetail.loss_coefficient || 0
+    this.price = this.goodsDetail.price || '0'
+    this.count = this.goodsDetail.lowest_count || '0'
+    this.store = this.goodsDetail.safety || '0'
+    this.lossRate = this.goodsDetail.loss_coefficient || '0'
   },
   methods: {
     async changeData() {
@@ -64,6 +58,9 @@ export default {
       if(this.lossRate.length <= 0) {
         return this.$toast('请填写生产损耗率')
       }
+      if(this.lossRate >= 1) {
+        return this.$toast('生产损耗率不能大于1')
+      }
       const body = {
           price: this.price,
           lowest_count: this.count,
@@ -71,10 +68,6 @@ export default {
           loss_coefficient: parseFloat(this.lossRate)
         }
       
-      // cosnt data = 
-      // [{name: 'aaaa', price: '222'}, {name: 'aaaa', price: '222'}]
-
-
       try {
         const { data } = await GoodsPriceChange(body, this.queryId)
         if (data.errmsg) {

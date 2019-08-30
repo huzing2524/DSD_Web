@@ -1,36 +1,33 @@
 <template lang="pug">
   .main
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 补料生产任务
-      .product-item-content
-        span(class="item-title") {{supplementTask.product}}
-        span(class="item-subtitle") {{`计划生产：${supplementTask.target}`}}
-        span(class="item-minititle") {{getYMDDateDecimalString(supplementTask.time)}}
-
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 补料原因
-      .product-item-content
-        input(class="reason-input" placeholder="填写补料原因..." v-model="remark")
+    DetailCellTask(iconHref="#iconicon_renwu1" 
+                    title="补料生产任务"
+                    :borderTitle="supplementTask.product"
+                    :normalTitle="`计划生产：${supplementTask.target}`"
+                    :subtitle="getYMDDateDecimalString(supplementTask.time)")
+    
+    DetailCellInput(iconHref="#iconicon_renwu1" 
+                    title="补料原因" 
+                    placeholder="填写退料原因..."
+                    v-model="remark"
+                    :style="{marginTop:'10px'}")
+    
     StepButton(title="下一步"
       class="step-button"
       @click="nextStep")
 </template>
 
 <script>
+import DetailCellTask from '_components/product/detail_cell_task'
+import DetailCellInput from '_components/product/detail_cell_input'
 import StepButton from '_components/product/step_button/'
 import { mapState } from 'vuex';
 import { getYMDDateDecimalString } from '_common/util'
 export default {
   components: {
-    StepButton
+    StepButton,
+    DetailCellTask,
+    DetailCellInput,
   },
   data() {
     return {

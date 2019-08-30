@@ -9,6 +9,8 @@ import Buy from './buy'
 import Product from './product'
 import Rights from './rights'
 import Industry from './industry'
+import My from './my'
+import Invite from './invite'
 
 Vue.use(Router)
 
@@ -26,6 +28,15 @@ const router = new Router({
     ...Product,
     ...Rights,
     ...Industry,
+    ...My,
+    ...Invite,
+    {
+      path: '/3rd/casicloud',
+      component: () => import('_views/third_login/'),
+      meta: {
+        title: '第三方登录'
+      }
+    },
     {
       path: '*',
       redirect: '/'
@@ -51,28 +62,34 @@ router.beforeEach((to, from, next) => {
   // 路由发生变化修改页面title
   if (to.meta.title) {
     document.title = to.meta.title
-    // 更新iOS webview title
-    let mobile = navigator.userAgent.toLowerCase()
-    if (/iphone|ipad|ipod/.test(mobile)) { 
-      window.webkit && window.webkit.messageHandlers.updateTitle.postMessage(to.meta.title)
-    }
+  }
+  if (to.path === '/3rd/casicloud') {
+    next()
+    return
   }
   let authorization = to.query.token || localStorage.getItem('Authorization')
   let phone = to.query.phone
   let username = to.query.name || phone
   if (authorization) {
+    localStorage.setItem('Authorization', authorization)
+    SetDefaultHeader('Authorization', authorization)
     if (phone) {
-      localStorage.setItem('Authorization', authorization)
       localStorage.setItem('Phone', phone)
       localStorage.setItem('UserName', username)
-      SetDefaultHeader('Authorization', authorization);
     }
     next()
   } else {
     localStorage.clear()
     Bus.$toast('登录失效')
     next()
-    // next({ replace: true, path: `/user/login?backurl=${to.fullPath}` });
+  }
+})
+
+router.afterEach((to) => {
+  // 更新iOS webview title
+  let mobile = navigator.userAgent.toLowerCase()
+  if (/iphone|ipad|ipod/.test(mobile)) {
+    window.webkit && window.webkit.messageHandlers.updateTitle.postMessage(to.meta.title)
   }
 })
 

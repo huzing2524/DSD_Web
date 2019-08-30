@@ -1,5 +1,5 @@
 <template lang="pug">
-  .apply_detail(:class="state!=='0' ? 'active' : ''")
+  .apply_detail(v-if="isLoad" :class="state!=='0' ? 'active' : ''")
     .apply_number
       .number_left
         .icon
@@ -7,63 +7,70 @@
             use(xlink:href="#iconicon_danhao")
         span 临时申购单号
       .number_right {{listItem.id}}
-    .status
-      .left
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_zhaungtai")
-        span 状态
-      .right(v-show="listItem.state==='0'") 待审批
-      .right(v-show="listItem.state==='1'") 已通过
-      .right(v-show="listItem.state==='2'") 已取消
-    .reason
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_remarks")
-        span 申购原因
-      .content {{listItem.remark}}
+    .state
+      .item
+        .left
+          .icon
+            svg.ali_icon(aria-hidden="true")
+              use(xlink:href="#iconicon_zhaungtai")
+          span 采购入库状态
+        .right {{listItem.state | stateApply}}
     .material
       .title
         .icon
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconicon_product")
-        span 采购物料
-      .item(v-for="(item,index) in listItem.products" :key="index")
-        .item_name {{item.category}}：{{item.name}}
-        .item_info
-          span {{item.count}}{{item.unit}}
-          span ￥{{item.price | formatFloatNum}}
-          span ￥{{item.money | formatFloatNum}}
+        span 申购物料
+      .material_content
+        .item(v-for="(item,index) in listItem.products" :key="index")
+          .item_name
+            span {{item.category}}：{{item.name}}
+            p ￥{{item.price | formatFloatNum}}
+          .item_num ×{{item.count}}
       .total
         span 合计金额
         .num ￥
           p {{listItem.total_money | formatFloatNum}}
-    .applyer(:class="state!=='0' ? 'bottom' : ''")
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_clien")
-        span 申请人
-      .info
-        .name {{listItem.creator}}
-        .phone
-          span {{listItem.phone}}
-          p {{listItem.time}}
-    .applyer(v-show="state!=='0'" style="margin-bottom:20px;")
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_shenpi")
-        span 审批人
-      .info
-        .name {{listItem.approval}}
-        .phone
-          span {{listItem.approval_phone}}
-          p {{listItem.approval_time}}
+    .applyer
+      .item
+        .title
+          .icon
+            svg.ali_icon(aria-hidden="true")
+              use(xlink:href="#iconicon_shenpi")
+          span 申购人
+        .info
+          .name
+            .left
+              img(:src="listItem.creator_image")
+              .phone
+                span {{listItem.creator}}
+                p {{listItem.phone}}
+            .icon(@click="phoneCall(listItem.phone)")
+              svg.ali_icon(aria-hidden="true")
+                use(xlink:href="#iconphone")
+          .remark(v-if="listItem.remark") {{listItem.remark}}
+        .deliver_time {{listItem.time | timeYMDHMFilter}}
+      .item(v-if="listItem.approval")
+        .title
+          .icon
+            svg.ali_icon(aria-hidden="true")
+              use(xlink:href="#iconicon_shenpi")
+          span 审批人
+        .info
+          .name
+            .left
+              img(:src="listItem.approval_image")
+              .phone
+                span {{listItem.approval}}
+                p {{listItem.approval_phone}}
+            .icon(@click="phoneCall(listItem.approval_phone)")
+              svg.ali_icon(aria-hidden="true")
+                use(xlink:href="#iconphone")
+          .remark(v-if="listItem.remark") {{listItem.remark}}
+        .deliver_time {{listItem.approval_time | timeYMDHMFilter}}
     .options(v-show="state==='0'")
-      button(@click="nopassClick") 不通过
-      button(@click="passClick") 通过
+      button(@click="nopassClick") 取消申购
+      button(@click="passClick") 通过申购
 </template>
 
 <script>
@@ -71,10 +78,26 @@
   export default {
     data() {
       return {
+        isLoad: false,
         id: '',
         state: '',
         listItem:{}
       }
+    },
+    filters: {
+      stateApply(val) {
+        let content = '';
+        switch (parseInt(val)) {
+          case 0:
+            return '待审批';
+          case 1:
+            return '已通过';
+          case 2:
+            return '已取消';
+          default:
+            return content;
+        }
+      },
     },
     mounted() {
       this.initData()
@@ -85,84 +108,29 @@
         this.state = this.$route.query.state || ''
         StoreApplyDetail({id:this.id},'get').then((res) => {
           this.listItem = res.data
+          this.isLoad = true
         }).catch(() => {
           this.$toast('获取数据失败')
         })
       },
       nopassClick(){
-        this.$createDialog({
-          type: 'confirm',
-          title: '',
-          content: '确定不通过审批吗？',
-          confirmBtn: {
-            text: '不通过',
-            active: true,
-            disabled: false,
-            href: 'javascript:;',
-          },
-          cancelBtn: {
-            text: '取消',
-            active: false,
-            disabled: false,
-            href: 'javascript:;'
-          },
-          onConfirm: () => {
-            StoreApplyDetail({
-              id: this.id,
-              state: '2'
-            },'post').then((res) => {
-              if (parseInt(res.data.res) === 0) {
-                this.$toast(`操作成功`)
-                this.$router.go(-1)
-              } else {
-                this.$toast(res.data.errmsg)
-              }
-            }).catch(() => {
-              this.$toast('操作失败')
-            })
-          },
-          onCancel: () => {
-
-          }
-        }).show()
+        this.$router.push(`/store/purchase_apply/remark?id=${this.id}&type=nopass`)
       },
       passClick(){
-        this.$createDialog({
-          type: 'confirm',
-          title: '',
-          content: '确定通过审批吗？',
-          confirmBtn: {
-            text: '通过',
-            active: true,
-            disabled: false,
-            href: 'javascript:;',
-          },
-          cancelBtn: {
-            text: '取消',
-            active: false,
-            disabled: false,
-            href: 'javascript:;'
-          },
-          onConfirm: () => {
-            StoreApplyDetail({
-              id: this.id,
-              state: '1'
-            },'post').then((res) => {
-              if (parseInt(res.data.res) === 0) {
-                this.$toast(`操作成功`)
-                this.$router.go(-1)
-              } else {
-                this.$toast(res.data.errmsg)
-              }
-            }).catch(() => {
-              this.$toast('操作失败')
-            })
-          },
-          onCancel: () => {
-
-          }
-        }).show()
-      }
+        this.$router.push(`/store/purchase_apply/remark?id=${this.id}&type=pass`)
+      },
+      phoneCall(phone) {
+        let u = navigator.userAgent
+        let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+        let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+        if (isAndroid) {
+          window.android.phoneCall(phone)
+        }else if(isIOS){
+          window.webkit && window.webkit.messageHandlers.phoneCall.postMessage(phone)
+        }else{
+          window.location.href = `tel://${phone}`
+        }
+      },
     }
   }
 </script>
@@ -170,7 +138,7 @@
 <style scoped lang="stylus">
   .apply_detail
     background #E6EAED
-    padding-bottom 62px
+    padding-bottom 52px
     &.active
       padding-bottom 0
     .apply_number
@@ -179,91 +147,104 @@
       justify-content space-between
       align-items center
       background #fff
-      padding 15px
-      margin-bottom 10px
+      padding 12px 10px
       .number_left
         display flex
         flex-direction row
         align-items center
         .icon
-          width 18px
-          height 20px
-          margin-right 7px
+          display flex
+          wh 16px 16px
+          margin-right 4px
         span
-          font-size 15px
-          color #545454
+          display flex
+          fsc 16px #333333
+          font-weight 600
       .number_right
         flex 1
         font-size 14px
-        color #999999
+        color #666666
         text-align right
         overflow hidden
         text-overflow ellipsis
         white-space nowrap
         margin-left 20px
+    .state
+      display flex
+      flex-direction row
+      padding 0 10px
+      margin-bottom 10px
+      bgf()
+      .item
+        width 100%
+        display flex
+        flex-direction row
+        justify-content space-between
+        align-items center
+        padding 12px 0
+        border-top 1px solid #EEEEEE
+        .left
+          display flex
+          flex-direction row
+          align-items center
+          .icon
+            display flex
+            wh 16px 16px
+            margin-right 4px
+          span
+            display flex
+            fsc 16px #333333
+            font-weight 600
+        .right
+          fsc 14px #666666
     .material
       background #fff
-      padding 15px 0 16px 15px
+      padding 0 10px
       margin-bottom 10px
       .title
         display flex
         flex-direction row
         align-items center
-        margin-bottom 15px
+        margin-bottom 10px
+        padding-top 12px
         .icon
           display flex
-          wh(18px,18px)
-          margin-right 8px
+          width 16px
+          height 16px
+          margin-right 4px
         span
-          fsc(15px,#545454)
-      .item
+          fsc 16px #333333
+          font-weight 600
+      .material_content
         display flex
         flex-direction column
-        background #E9F5FF
+        background #F5FBFF
         border-radius 6px
-        padding 15px 0
-        margin-right 15px
-        margin-bottom 15px
-        &:last-child
-          margin-bottom 0
-        .item_name
-          font-size 14px
-          color #464646
-          margin-left 15px
-        .item_info
+        padding 12px 10px
+        .item
           display flex
-          flex-direction row
-          margin-top 12px
-          span
-            flex 1
-            font-size 14px
-            color #7A7A7A
-            text-align center
-            position relative
-            &:nth-of-type(2)::before
-              content: ''
-              position absolute
-              left 0
-              top 50%
-              margin-top -2px
-              width 4px
-              height 4px
-              background #BEBEBE
-              border-radius 2px
-            &:nth-of-type(2)::after
-              content: ''
-              position absolute
-              right 0
-              top 50%
-              margin-top -2px
-              width 4px
-              height 4px
-              background #BEBEBE
-              border-radius 2px
+          flex-direction column
+          margin-bottom 12px
+          &:last-child
+            margin-bottom 0
+          .item_name
+            display flex
+            flex-direction row
+            justify-content space-between
+            span
+              fsc 14px #333333
+            p
+              fsc 14px #666666
+          .item_num
+            display flex
+            justify-content flex-end
+            fsc 12px #999999
+            margin-top 6px
       .total
         display flex
         flex-direction row
         justify-content space-between
+        padding 12px 0
         span
           font-size 14px
           color #464646
@@ -276,95 +257,88 @@
           margin-right 15px
           p
             font-size 18px
-            font-weight 500
-    .status
-      display flex
-      flex-direction row
-      margin-bottom 10px
-      background #fff
-      padding 15px
-      justify-content space-between
-      align-items center
-      .left
-        display flex
-        flex-direction row
-        align-items center
-        .icon
-          display flex
-          width 18px
-          height 18px
-          margin-right 8px
-        span
-          font-size 15px
-          color #545454
-      .right
-        font-size 14px
-        color #999999
-    .reason
-      display flex
-      flex-direction column
-      background #fff
-      padding 15px
-      margin-bottom 10px
-      .title
-        display flex
-        flex-direction row
-        align-items center
-        margin-bottom 15px
-        .icon
-          display flex
-          wh(18px,18px)
-          margin-right 8px
-        span
-          font-size 15px
-          color #545454
-      .content
-        display flex
-        flex-direction row
-        padding 15px
-        background #E9F5FF
-        font-size 14px
-        line-height 20px
-        color #545454
+            font-weight 600
     .applyer
       display flex
       flex-direction column
       background #fff
-      padding 15px
-      margin-bottom 40px
-      &.bottom
-        margin-bottom 10px
-      .title
-        display flex
-        flex-direction row
-        align-items center
-        .icon
-          display flex
-          width 16px
-          height 18px
-          margin-right 8px
-        span
-          font-size 15px
-          color #545454
-      .info
+      padding 0 10px
+      margin-bottom 20px
+      .item
         display flex
         flex-direction column
-        background #E9F5FF
-        border-radius 6px
-        padding 15px 21px 15px 15px
-        margin-top 15px
-        .name
-          display flex
-          fsc(14px,#545454)
-          margin-bottom 10px
-        .phone
+        background #fff
+        margin-top 12px
+        padding-bottom 12px
+        border-bottom 1px solid #EEEEEE
+        &:last-child
+          border-bottom 0
+        .title
           display flex
           flex-direction row
-          justify-content space-between
+          align-items center
+          .icon
+            display flex
+            width 16px
+            height 16px
+            margin-right 4px
           span
-            fsc(14px,#545454)
-          p
-            fsc(13px,#999999)
+            fsc 16px #333333
+            font-weight 600
+        .info
+          display flex
+          flex-direction column
+          background #F5FBFF
+          border-radius 6px
+          padding 12px 10px
+          margin-top 10px
+          .name
+            display flex
+            flex-direction row
+            justify-content space-between
+            align-items center
+            .left
+              display flex
+              flex-direction row
+              align-items center
+              img
+                wh 48px 48px
+                margin-right 10px
+              .phone
+                display flex
+                flex-direction column
+                span
+                  fsc 14px #333333
+                  margin-bottom 6px
+                p
+                  fsc 14px #666666
+            .icon
+              wh 38px 38px
+          .remark
+            display flex
+            flex-direction row
+            background #DEF2FF
+            line-height 20px
+            border-radius 8px
+            padding 12px 10px
+            margin-top 12px
+            fsc 12px #333333
+            position relative
+            &:before
+              content ''
+              wh 0px 0px
+              border-left 6px solid transparent
+              border-right 6px solid transparent
+              border-bottom 12px solid #DEF2FF
+              position absolute
+              top -12px
+              left 17px
+        .deliver_time
+          display flex
+          flex-direction row
+          justify-content flex-end
+          fsc 12px #999999
+          margin-top 12px
     .options
       width 100%
       position fixed
@@ -372,19 +346,20 @@
       display flex
       flex-direction row
       background #fff
-      padding 15px
+      padding 12px 10px
       justify-content flex-end
       align-items center
+      border-top 1px solid #CCCCCC
       button
-        wh(92px,32px)
-        line-height 32px
-        color #4DA8EE
-        border 1px solid #4DA8EE
+        wh 80px 28px
+        line-height 28px
+        color #1E9AFF
+        border 1px solid #1E9AFF
         border-radius 16px
         margin-left 15px
         &:nth-of-type(1)
-          color #F4616C
-          border 1px solid #F4616C
+          color #999999
+          border 1px solid #999999
 </style>
 <style lang="stylus">
   .cube-dialog-content

@@ -1,43 +1,28 @@
 <template lang="pug">
   .main
-    .content
-      .icon
-        svg.ali_icon(aria-hidden="true")
-          use(xlink:href='#iconsuccess')
-      .added
-        p 已添加
-      .title-content
-        .title
-          p {{queryName}}
-      .input-content
-        .input-title
-          p {{`成 本 价 `}} 
-        input(class='input' placeholder="填写物料成本价",v-model="price")
-      .input-content
-        .input-title
-          p {{`最小采购`}} 
-        input(class='input' placeholder="填写最小采购量",v-model="count")
-      .input-content
-        .input-title
-          p {{`安全库存`}} 
-        input(class='input' placeholder="填写安全库存",v-model="store")
-      .input-content
-        .input-title
-          p {{`生产损耗率`}} 
-        input(class='input' placeholder="0-0.99",v-model="lossRate")
-      .success-btn(@click="saveClick")
-        .success-title
-          p 保存并返回物料目录
+    InformationHeader(borderTitle="已添加" :title="queryName" :subtitle="`单位：${queryUnit}`")
+    p(class="setup-title") 设置物料基础配置项
+    InformationInput(title="安全库存" placeholder="请填写安全库存" v-model="store")
+    InformationInput(title="单位产品售价（元）" placeholder="请填写单位产品售价" v-model="price" :style="{marginTop:'10px'}")
+    InformationInput(title="采购率损耗率" placeholder="0-0.99" v-model="lossRate")
+    BottomButton(title="保存并返回" @buttonClick="saveClick")
 </template>
 
 <script>
 import { GoodsPriceCount } from '_api/product'
 import { mapState } from 'vuex'
+import InformationHeader from '_components/product/information_header'
+import InformationInput from '_components/product/information_input/'
+import BottomButton from '_components/product/information_bottom_button/'
 export default {
+  components:{
+    InformationHeader,
+    InformationInput,
+    BottomButton
+  },
   data() {
     return {
       price: '',
-      count: '',
       store: '',
       lossRate: '',
     }
@@ -51,24 +36,27 @@ export default {
     },
     queryName() {
       return this.$route.query.name
+    },
+    queryUnit() {
+      return this.$route.query.unit
     }
   },
   methods: {
     async saveClick() {
-      if(this.price <= 0) {
-        return this.$toast('请填写物料成本价')
-      }
-      if(this.count <= 0) {
-        return this.$toast('请填写物料最小采购量')
-      }
       if(this.store.length <= 0) {
         return this.$toast('请填写安全库存')
+      }
+      if(this.price <= 0) {
+        return this.$toast('请填写单位产品售价')
       }
       if(this.lossRate.length <= 0) {
         return this.$toast('请填写损耗率')
       }
+      if(this.lossRate >= 1) {
+        return this.$toast('生产损耗率不能大于1')
+      }
       try {
-        const body = {price: this.price, lowest_count: this.count, safety: this.store, loss_coefficient: this.lossRate}
+        const body = {price: this.price, safety: this.store, loss_coefficient: this.lossRate}
         const { data } = await GoodsPriceCount(body, this.queryId)
         if(data.errmsg) {
           this.$toast(data.errmsg)
@@ -93,61 +81,11 @@ export default {
   .main
     width 100%
     height 100%
-    background-color white
-    padding 30px 20px 0px 20px
-    .content
-      display flex
-      flex-direction column
-      align-items center
-      .icon
-        width 70px
-        height 70px
-      .added
-        margin-top 10px
-        color #545454
-        font-size 15px
-        font-weight 400
-      .title-content
-        width 100%
-        margin-top 15px
-        background-color #f1f8fe
-        height 50px
-        width 185px
-        display flex
-        align-items center
-        justify-content center
-        margin-bottom 16px
-        .title
-          font-size 15px
-          color #545454
-          font-weight 400
-      .input-content
-        margin-top 20px
-        align-items center
-        font-size 15px
-        width 100%
-        height 30px
-        display flex
-        flex-direction row
-        .input-title
-          margin-right 10px
-        .input
-          flex 1
-          height 30px
-          border-bottom 1px solid #cccccc
-      .success-btn
-        width 100%
-        display flex
-        justify-content center
-        align-items center
-        background-color rgba(30,154,255,1)
-        border-radius 22px
-        height 44px
-        margin-top 40px
-        .success-title
-          color white
-          font-size 15px
-          font-weight 400
+    background-color #E6EAED
+    .setup-title
+      title()
+      padding 10px 0px 10px 10px
+      font-weight 500
 </style>
 
 

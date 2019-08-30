@@ -1,18 +1,18 @@
 <template lang="pug">
   .main
-    .input-content
-      span(class="input-title") 工序
-      input(class="input" placeholder="填写工序名称" v-model="processName")
+    InformationInput(title="工序", placeholder="填写工序名称" v-model="processName" :style="{marginTop:'10px'}")
     StepButton(title="保存" 
       @click="saveClick")
 </template>
 
 <script>
 import StepButton from '_components/product/step_button'
+import InformationInput from '_components/product/information_input'
 import { ProcessChange, ProcessAdd } from '_api/product'
 export default {
   components: {
-    StepButton
+    StepButton,
+    InformationInput
   },
   data() {
     return {
@@ -60,23 +60,12 @@ export default {
   .main
     height 100%
     width 100%
-    background-color #ffffff
-    padding 40px 20px 0px 20px
+    background-color #E6EAED
     .input-content
       display flex
       flex-direction row
       align-items center
       height 30px
-      .input-title
-        font-size 15px
-        color #545454
-      .input
-        font-size 14px
-        color #545454
-        margin-left 10px
-        border-bottom 1px solid #cccccc
-        height 30px
-        flex 1
 </style>
 
 

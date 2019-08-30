@@ -16,8 +16,8 @@
           .list-item-title-content
             span(class="list-item-title")
               slot(name="title" :item="item") title
-            span(class="list-item-count")
-              slot(name="subtitle" :item="item") subtitle
+            span(class="list-item-tip")
+              slot(name="tip" :item="item") tip
           .list-item-arrow
             svg.ali_icon(aria-hidden="true")
               use(xlink:href='#iconArrow_1')
@@ -25,15 +25,6 @@
 </template>
 
 <script>
-/**
- MaterialEditMask(:show="isShowEditMask"
-              :items="Object.values(selectedProductDict)"
-              @arrowClick="selectedMaskArrowClick"
-              @clearClick="selectedMaskClearClick"
-              @itemClick="selectedMaskItemClick")
-  template(v-slot:title="slotProps") {{slotProps.item.name}}
-  template(v-slot:subtitle="slotProps") {{`${slotProps.item.count}条`}}
- */
 export default {
   props:{
     show: {
@@ -47,7 +38,7 @@ export default {
     },
     subtitleKey: {
       default: ''
-    }
+    },
   },
   methods: {
     arrowClick() {
@@ -75,7 +66,7 @@ export default {
       position absolute
       width 100%
       background-color #ffffff
-      bottom 80px
+      bottom 52px
       display flex
       flex-direction column
       overflow scroll
@@ -123,20 +114,28 @@ export default {
           width 100%
           margin-top 0px
           border-bottom 1px solid #EFEFEF
-          padding 0px 5px 0px 5px
+          padding 12px 10px
           .list-item-title-content
             display flex
             flex-direction column
             .list-item-title
-              font-size 14px
-              color #545454
-              font-weight 500
-            .list-item-count
-              font-size 12px
-              color #545454
-              margin-top 15px
+              height:22px;
+              font-size:16px;
+              font-family:PingFangSC-Medium;
+              font-weight:500;
+              color:rgba(84,84,84,1);
+              line-height:22px;
+              font-weight bold
+            .list-item-tip
+              height:17px;
+              font-size:12px;
+              font-family:PingFangSC-Regular;
+              font-weight:400;
+              color:rgba(102,102,102,1);
+              line-height:17px;
+              margin-top 4px
           .list-item-arrow
             height 16px
             width 8px
-            margin-bottom 20px
+
 </style>

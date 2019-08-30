@@ -11,7 +11,7 @@
             p(v-show="item =='wait'" :class="{wait_1:items.state == 1,wait_2:items.state == 2,'wait_3':items.state == 3,wait_4:items.state == 4}") {{items.state | productTaskItemWaitState}}
             p(v-show="item =='done'") {{items.state | productTaskItemDoneState}}
           .info
-            span 计划生产：{{items.target}}
+            span 计划生产：{{items.target | formatFloat}}
             p {{items.time | timeFilter}}
     .order_index(v-else-if="listType === 2")
       .list_tab

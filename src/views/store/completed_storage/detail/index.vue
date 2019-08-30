@@ -7,57 +7,66 @@
             use(xlink:href="#iconicon_danhao")
         span 完工入库单号
       .number_right {{listItem.id}}
-    .picking_info
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_product")
-        span {{listItem.product.category}}：{{listItem.product.name}}
-      .content
-        .item
-          span 计划生产
-          p {{listItem.product.plan_count}}{{listItem.product.unit}}
-        .item
-          span 实际生产
-          p {{listItem.product.complete_count}}{{listItem.product.unit}}
-        .item
-          span 生产时间
-          p {{listItem.product.complete_time | timePointFilter}}
-    .status
+    .state
       .item
         .left
           .icon
             svg.ali_icon(aria-hidden="true")
               use(xlink:href="#iconicon_zhaungtai")
-          span 状态
+          span 完工入库状态
         .right {{listItem.state | stateCompleted}}
-      .item(v-if="listItem.completed_storage.incoming_time > 0")
-        .left
+    .time
+      .title
+        .icon
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href="#iconicon_time")
+        span 完工入库时间
+      .right(v-if="listItem.completed_storage.income_time") {{listItem.completed_storage.income_time | timeYMDHMFilter}}
+      .right(v-else) —
+    .picking_info
+      .title
+        .icon
+          svg.ali_icon(aria-hidden="true")
+            use(xlink:href="#iconicon_product")
+        span 完工入库产品
+      .content
+        span {{listItem.product.name}}
+        p 计划生产：{{listItem.product.plan_count.toFixed(2)}}{{listItem.product.unit}}
+        p 实际生产：{{listItem.product.complete_count.toFixed(2)}}{{listItem.product.unit}}
+        p 生产单号：{{listItem.product.product_id}}
+    .pickinger(v-if="listItem.completed_storage.send_person")
+      .item
+        .title
           .icon
             svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconicon_time")
-          span 领料时间
-        .right {{listItem.completed_storage.incoming_time}}
-    .pickinger(v-if="listItem.completed_storage.send_person")
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_shenpi")
-        span 交接人
-      .info
-        .phone
-          span {{listItem.completed_storage.send_person}}
-          p {{listItem.completed_storage.send_phone}}
-    .pickinger(v-if="listItem.completed_storage.receive_person")
-      .title
-        .icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_clien")
-        span 接收人
-      .info
-        .phone
-          span {{listItem.completed_storage.receive_person}}
-          p {{listItem.completed_storage.receive_phone}}
+              use(xlink:href="#iconicon_shenpi")
+          span 交接人
+        .info
+          .name
+            .left
+              img(:src="listItem.completed_storage.send_image")
+              .phone
+                span {{listItem.completed_storage.send_person}}
+                p {{listItem.completed_storage.send_phone}}
+            .icon(@click="phoneCall(listItem.completed_storage.send_phone)")
+              svg.ali_icon(aria-hidden="true")
+                use(xlink:href="#iconphone")
+      .item
+        .title
+          .icon
+            svg.ali_icon(aria-hidden="true")
+              use(xlink:href="#iconicon_shenpi")
+          span 接收人
+        .info
+          .name
+            .left
+              img(:src="listItem.completed_storage.receive_image")
+              .phone
+                span {{listItem.completed_storage.receive_person}}
+                p {{listItem.completed_storage.receive_phone}}
+            .icon(@click="phoneCall(listItem.completed_storage.receive_phone)")
+              svg.ali_icon(aria-hidden="true")
+                use(xlink:href="#iconphone")
     .completed_option(v-show="state!=='done'")
       span(v-show="state==='not_yet'") 产品入库后，将状态设为：已入库
       span(v-show="state==='3'")
@@ -131,6 +140,18 @@
           this.$toast('操作失败')
         })
       },
+      phoneCall(phone) {
+        let u = navigator.userAgent
+        let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+        let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+        if (isAndroid) {
+          window.android.phoneCall(phone)
+        }else if(isIOS){
+          window.webkit && window.webkit.messageHandlers.phoneCall.postMessage(phone)
+        }else{
+          window.location.href = `tel://${phone}`
+        }
+      },
       showQrcode(){
         StoreCompletedDetail({
           id:this.id,
@@ -155,7 +176,7 @@
 <style scoped lang="stylus">
   .completed_detail
     background #E6EAED
-    padding-bottom 62px
+    padding-bottom 52px
     &.active
       padding-bottom 0
     .completed_number
@@ -164,120 +185,163 @@
       justify-content space-between
       align-items center
       background #fff
-      padding 15px
-      margin-bottom 10px
+      padding 12px 10px
       .number_left
         display flex
         flex-direction row
         align-items center
         .icon
-          width 18px
-          height 20px
-          margin-right 7px
+          display flex
+          wh 16px 16px
+          margin-right 4px
         span
-          font-size 15px
-          color #545454
+          display flex
+          fsc 16px #333333
+          font-weight 600
       .number_right
         flex 1
         font-size 14px
-        color #999999
+        color #666666
         text-align right
         overflow hidden
         text-overflow ellipsis
         white-space nowrap
         margin-left 20px
-    .picking_info
+    .state
       display flex
-      flex-direction column
-      background #fff
-      padding 15px
-      margin-bottom 10px
-      .title
-        display flex
-        flex-direction row
-        align-items center
-        margin-bottom 15px
-        .icon
-          display flex
-          wh(18px,18px)
-          margin-right 8px
-        span
-          font-size 15px
-          color #545454
-      .content
-        display flex
-        flex-direction column
-        background #E9F5FF
-        padding 15px 15px 0
-        border-radius 6px
-        .item
-          display flex
-          flex-direction row
-          justify-content space-between
-          margin-bottom 15px
-          span
-            fsc(14px,#545454)
-          p
-            fsc(14px,#999999)
-    .status
-      display flex
-      flex-direction column
-      margin-bottom 10px
+      flex-direction row
+      padding 0 10px
+      bgf()
       .item
+        width 100%
         display flex
         flex-direction row
-        background #fff
-        padding 15px
         justify-content space-between
         align-items center
+        padding 12px 0
+        border-top 1px solid #EEEEEE
+        border-bottom 1px solid #EEEEEE
         .left
           display flex
           flex-direction row
           align-items center
           .icon
             display flex
-            width 18px
-            height 18px
-            margin-right 8px
+            wh 16px 16px
+            margin-right 4px
           span
-            font-size 15px
-            color #545454
+            display flex
+            fsc 16px #333333
+            font-weight 600
         .right
-          font-size 14px
-          color #999999
-    .pickinger
+          fsc 14px #666666
+    .time
       display flex
-      flex-direction column
-      background #fff
-      padding 15px
+      flex-direction row
+      justify-content space-between
+      align-items center
       margin-bottom 10px
+      background #fff
+      padding 12px 10px
       .title
         display flex
         flex-direction row
         align-items center
         .icon
           display flex
-          width 16px
+          width 18px
           height 18px
-          margin-right 8px
+          margin-right 4px
         span
-          font-size 15px
-          color #545454
-      .info
+          fsc 16px #333333
+          font-weight 600
+      .right
+        fsc 14px #666666
+    .picking_info
+      display flex
+      flex-direction column
+      background #fff
+      padding 12px 10px
+      margin-bottom 10px
+      .title
+        display flex
+        flex-direction row
+        align-items center
+        margin-bottom 10px
+        .icon
+          display flex
+          wh 16px 16px
+          margin-right 4px
+        span
+          display flex
+          fsc 16px #333333
+          font-weight 600
+      .content
         display flex
         flex-direction column
-        background #E9F5FF
+        background #F5FBFF
+        padding 12px 10px
         border-radius 6px
-        padding 15px 21px 15px 15px
-        margin-top 15px
-        .phone
+        span
+          fsc 14px #333333
+        p
+          fsc 12px #666666
+          margin-top 6px
+    .pickinger
+      display flex
+      flex-direction column
+      background #fff
+      padding 0 10px
+      margin-bottom 20px
+      .item
+        display flex
+        flex-direction column
+        padding 12px 0
+        border-bottom 1px solid #EEEEEE
+        &:last-child
+          border-bottom 0
+        .title
           display flex
           flex-direction row
-          justify-content space-between
+          align-items center
+          .icon
+            display flex
+            width 16px
+            height 16px
+            margin-right 4px
           span
-            fsc(14px,#545454)
-          p
-            fsc(13px,#999999)
+            fsc 16px #333333
+            font-weight 600
+        .info
+          display flex
+          flex-direction column
+          background #F5FBFF
+          border-radius 6px
+          padding 12px 10px
+          margin-top 10px
+          .name
+            display flex
+            flex-direction row
+            justify-content space-between
+            align-items center
+            .left
+              display flex
+              flex-direction row
+              align-items center
+              img
+                wh 48px 48px
+                margin-right 10px
+                border-radius 4px
+              .phone
+                display flex
+                flex-direction column
+                span
+                  fsc 14px #333333
+                  margin-bottom 6px
+                p
+                  fsc 14px #666666
+            .icon
+              wh 38px 38px
     .completed_option
       width 100%
       position fixed
@@ -285,18 +349,18 @@
       display flex
       flex-direction row
       background #fff
-      padding 15px
+      padding 12px 10px
       justify-content space-between
       align-items center
+      border-top 1px solid #CCCCCC
       span
-        font-size 13px
-        color #999999
+        fsc 12px #666666
       button
-        wh(92px,32px)
-        line-height 32px
-        color #4DA8EE
-        border 1px solid #4DA8EE
-        border-radius 16px
+        wh 80px 28px
+        line-height 28px
+        fsc 12px #1E9AFF
+        border 1px solid #1E9AFF
+        border-radius 14px
     .qrCode
       width 100%
       height 100%

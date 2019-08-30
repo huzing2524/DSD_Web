@@ -1,5 +1,5 @@
 import Vue from 'vue'
-
+import AppDialog from '_components/app_dialog'
 // By default we import all the components.
 // Only reserve the components on demand and remove the rest.
 // Style is always required.
@@ -21,7 +21,7 @@ import {
   Radio,
   // RadioGroup,
   Input,
-  // Textarea,
+  Textarea,
   Select,
   // Switch,
   // Rate,
@@ -50,8 +50,20 @@ import {
   // Sticky,
   // ScrollNav,
   // ScrollNavBar
+  createAPI
 } from 'cube-ui'
 
+/**
+ 调用方式：
+    this.$createAppDialog({
+              content: '测试测试测试测试测试测试测试测试测试测试测试测试测试测试',
+              confirmTitle: '确定',
+              cancelTitle: '取消',
+              onConfirm: () => { console.log('lch--confirm-') },
+              onCancel:() => { console.log('lch----cancel---') }
+            }).show()
+ */
+createAPI(Vue,AppDialog,['confirm','cancel'],true)
 // Vue.use(Button)
 // Vue.use(Loading)
 // Vue.use(Tip)
@@ -65,7 +77,7 @@ import {
 Vue.use(Radio)
 // Vue.use(RadioGroup)
 Vue.use(Input)
-// Vue.use(Textarea)
+Vue.use(Textarea)
 Vue.use(Select)
 // Vue.use(Switch)
 // Vue.use(Rate)

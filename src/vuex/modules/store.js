@@ -4,8 +4,11 @@ export default {
   namespaced: true,
   state: {
     store: '1234',
+    storage: {
+      storageName: '',
+    },
     storeSub: {
-      remark:'',
+      remark: '',
       storageDetail:{},
     },
   },
@@ -29,6 +32,7 @@ export default {
       state.store = payload
     },
     [STORE_SUB](state, payload) {
+      state.storage = payload === undefined ? {} : {...state.storage, ...payload}
       state.storeSub = payload === undefined ? {} : {...state.storeSub, ...payload}
     },
   },

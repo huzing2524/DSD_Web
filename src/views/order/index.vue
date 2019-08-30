@@ -64,7 +64,7 @@
         .item
           .title
             p 订单状态
-            .to_detail 查看详情
+            router-link.to_detail(to="/order/order_list") 查看详情
           .client_rank
             .client_rank_item(v-for="(item, idx) in Object.keys(orderMainData.order_status)")
               .name {{idx | orderListState}}
@@ -200,7 +200,6 @@
               this.maxRankVal.status = this.orderMainData.order_status[item]
             }
           })
-          console.log(this.maxRankVal.status)
           this.isLoad = true
         })
       },

@@ -7,7 +7,7 @@
         p.card_title {{item | orderListState}}
         router-link.card_item(v-for="(items, idxs) in orderListData[Object.keys(orderListData)[idx]]" :key="idxs" :to="`/order/order_detail?id=${items.id}`")
           .name
-            .icon(v-if="item.order_type== 1")
+            .icon(v-if="items.order_type== 1")
               svg.ali_icon(aria-hidden="true")
                 use(xlink:href="#iconicon_own")
             .icon(v-else)
@@ -24,7 +24,7 @@
         p.card_title {{item | orderJiaohuoState}}
         router-link.card_item(v-for="(items, idxs) in orderListData[Object.keys(orderListData)[idx]]" :key="idxs" :to="`/order/order_detail?id=${items.id}`")
           .name
-            .icon(v-if="item.order_type== 1")
+            .icon(v-if="items.order_type== 1")
               svg.ali_icon(aria-hidden="true")
                 use(xlink:href="#iconicon_own")
             .icon(v-else)
@@ -41,7 +41,7 @@
         p.card_title {{item | orderMoneyState}}
         router-link.card_item(v-for="(items, idxs) in orderListData[Object.keys(orderListData)[idx]]" :key="idxs" :to="`/order/order_detail?id=${items.id}`")
           .name
-            .icon(v-if="item.order_type== 1")
+            .icon(v-if="items.order_type== 1")
               svg.ali_icon(aria-hidden="true")
                 use(xlink:href="#iconicon_own")
             .icon(v-else)
@@ -58,7 +58,7 @@
         p.card_title {{item | orderProgressState}}
         router-link.card_item(v-for="(items, idxs) in orderListData[Object.keys(orderListData)[idx]]" :key="idxs" :to="`/order/order_detail?id=${items.id}`")
           .name
-            .icon(v-if="item.order_type== 1")
+            .icon(v-if="items.order_type== 1")
               svg.ali_icon(aria-hidden="true")
                 use(xlink:href="#iconicon_own")
             .icon(v-else)
@@ -75,7 +75,7 @@
         p.card_title {{item}}
         router-link.card_item(v-for="(items, idxs) in orderListData[Object.keys(orderListData)[idx]]" :key="idxs" :to="`/order/order_detail?id=${items.id}`")
           .name
-            .icon(v-if="item.order_type== 1")
+            .icon(v-if="items.order_type== 1")
               svg.ali_icon(aria-hidden="true")
                 use(xlink:href="#iconicon_own")
             .icon(v-else)

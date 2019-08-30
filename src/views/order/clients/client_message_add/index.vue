@@ -14,8 +14,8 @@
       p {{orderClientsMessage.name || "佚名"}}
 
     .company_address
-      span 地址
-      p {{getAddress(orderClientsMessage.region, orderClientsMessage.address)}}
+      span(style="width: 60px;") 地址
+      p(style="line-height: 20px;text-align: right;") {{getAddress(orderClientsMessage.region, orderClientsMessage.address)}}
     .company_boss_message
       .link_item
         span 联系人
@@ -46,41 +46,7 @@
         type: '',
         queryType: '',
         isLoad: false,
-        orderClientsMessage: {
-          /*clientMessage: {
-            id: "",
-            name: "北京天信有限公司",
-            phone: "15625267876",
-            contact: "Bob",
-            position: "Boss",
-            address: "永街道五道口前海2区4巷滨海大厦608永街道五道口前海2区4巷滨海大厦608",
-            qrcode: "https://....",
-            industry: "机械制造",
-          },
-          products: [
-            {
-              name: "活性炭口罩",
-              unit_price: '2.5',
-              unit: '个'
-            },
-            {
-              name: "一次性口罩",
-              unit_price: '5',
-              unit: '个'
-            },
-            {
-              name: "N95口罩",
-              unit_price: '10',
-              unit: '个'
-            },
-            {
-              name: "棉布口罩",
-              unit_price: '2',
-              unit: '个'
-            }
-          ]*/
-        }
-
+        orderClientsMessage: {}
       }
     },
     mounted() {
@@ -89,11 +55,6 @@
       this.queryType = this.$route.query.queryType || '1'
       this.initData()
     },
-    /*computed: {
-      ...mapState('order', {
-        orderClientsMessage: state => state.orderClientsMessage
-      }),
-    },*/
     methods: {
       ...mapActions('order', [
         'updateOrderClientMessage'
@@ -158,9 +119,10 @@
       padding 0 15px 0 15px
       margin 10px 0px
       .qrcode
-        row()
-        margin-bottom 15px
-        margin-top 15px
+        display flex
+        flex-direction row
+        justify-content space-between
+        padding 12px 0 8px
         .left
           .icon
             wh(20px,20px)
@@ -168,11 +130,11 @@
           .icon
             wh(18px, 18px)
       p
-        fsc 15px #545454
+        fsc 16px #333333
         display flex
         justify-content center
-        margin-bottom 50px
-
+        margin-bottom 40px
+        font-weight 600
     .company_address
       bgf()
       row()
@@ -228,7 +190,7 @@
       right 0
       bgf()
       margin-top 40px
-      padding 15px 15px 15px
+      padding 12px
       display flex
       align-items center
       justify-content flex-end

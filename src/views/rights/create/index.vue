@@ -11,83 +11,97 @@
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconicon_quanxian")
         span 选择权限
-      .right_item
-        .name 订单
+      .right_item(v-for="(item,index) in rightsList" :key="index")
+        .name {{item.title}}
         .options
-          cube-radio-group(v-model="listItem.orders" :options="orders" :horizontal="true")
-      .right_item
-        .name 采购
-        .options
-          cube-radio-group(v-model="listItem.buys" :options="buys" :horizontal="true")
-      .right_item
-        .name 生产
-        .options
-          cube-radio-group(v-model="listItem.product" :options="product" :horizontal="true")
-      .right_item
-        .name 仓库
-        .options
-          cube-radio-group(v-model="listItem.store" :options="store" :horizontal="true")
-      .right_item
-        .name 权限管理
-        .options
-          cube-radio-group(v-model="listItem.rights" :options="rights" :horizontal="true")
+          .item(v-for="(items,indexs) in item.rights" :key="indexs" @click="confirmClick(item,items)")
+            span(:class="items.flag?'checked':''")
+            p {{items.label}}
     .save_btn
       button(v-if="type === 'edit'" @click="editClick") 修改
       button(v-else @click="saveClick") 保存
 </template>
 
 <script>
-  import {mapState,mapActions} from 'vuex'
-  import { RightsOrgs,RightsNew,RightsModify } from '_api/rights'
+  import {mapState, mapActions} from 'vuex'
+  import {RightsOrgs, RightsNew, RightsModify} from '_api/rights'
+
   export default {
-  data( ){
+    data() {
       return {
-        type:'',
-        listItem:{},
-        orders: [
+        type: '',
+        checkIndex: 0,
+        listItem: {},
+        checkList: [],
+        rightsList: [
           {
-            label: '审批人',
-            value: '33'
+            title: '订单',
+            rights: [
+              {
+                label: '审批人',
+                value: '33',
+                flag: false
+              },
+              {
+                label: '普通管理员',
+                value: '3',
+                flag: false
+              }
+            ]
           },
           {
-            label: '普通管理员',
-            value: '3'
+            title: '采购',
+            rights: [
+              {
+                label: '审批人',
+                value: '55',
+                flag: false
+              },
+              {
+                label: '普通管理员',
+                value: '5',
+                flag: false
+              }
+            ]
+          },
+          {
+            title: '生产',
+            rights: [
+              {
+                label: '普通管理员',
+                value: '7',
+                flag: false
+              }
+            ]
+          },
+          {
+            title: '仓库',
+            rights: [
+              {
+                label: '审批人',
+                value: '99',
+                flag: false
+              },
+              {
+                label: '普通管理员',
+                value: '9',
+                flag: false
+              }
+            ]
+          },
+          {
+            title: '权限管理',
+            rights: [
+              {
+                label: '普通管理员',
+                value: '8',
+                flag: false
+              }
+            ]
           },
         ],
-        buys: [
-          {
-            label: '审批人',
-            value: '55'
-          },
-          {
-            label: '普通管理员',
-            value: '5'
-          },
-        ],
-        product: [
-          {
-            label: '普通管理员',
-            value: '7'
-          },
-        ],
-        store: [
-          {
-            label: '审批人',
-            value: '99'
-          },
-          {
-            label: '普通管理员',
-            value: '9'
-          },
-        ],
-        rights: [
-          {
-            label: '普通管理员',
-            value: '8'
-          },
-        ],
-        list:[],
-        res:null,
+        list: [],
+        res: null,
       }
     },
     computed: {
@@ -102,119 +116,90 @@
       ...mapActions('rights', [
         'updateRightsDetail'
       ]),
-      initData(){
+      initData() {
         this.type = this.$route.query.type || ''
         this.listItem.phone = this.rightList.phone
-        this.list = this.rightList.rightsItem
-        RightsOrgs({},'get').then((res) => {
+        this.list = this.rightList.rightsItem || []
+        this.rightsList.forEach(item => {
+          item.rights.forEach(items => {
+            if(this.list.indexOf(items.value)>-1){
+              items.flag = true
+            }
+          })
+        })
+        RightsOrgs({}, 'get').then((res) => {
           this.res = res.data.res
+          if (res.data.res === 0){
+            this.rightsList.push({
+            title: res.data.data.label,
+            rights: [
+              {
+                label: '普通管理员',
+                value: res.data.data.rights,
+                flag: false
+              }
+            ]
+          })
+          }
+          console.log(res.data)
         }).catch(() => {
           this.$toast('获取数据失败')
         })
-        if(this.list){
-          this.list.forEach((item) => {
-            this.orders.forEach((orderItem) => {
-              if(item === orderItem.value){
-                this.listItem.orders = item
-              }
-            })
-            this.buys.forEach((buysItem) => {
-              if(item === buysItem.value){
-                this.listItem.buys = item
-              }
-            })
-            this.product.forEach((productItem) => {
-              if(item === productItem.value){
-                this.listItem.product = item
-              }
-            })
-            this.store.forEach((storeItem) => {
-              if(item === storeItem.value){
-                this.listItem.store = item
-              }
-            })
-            this.rights.forEach((rightsItem) => {
-              if(item === rightsItem.value){
-                this.listItem.rights = item
-              }
-            })
+      },
+      confirmClick(item, items) {
+        if (items.flag) {
+          //
+        } else {
+          item.rights.forEach((_item) => {
+            _item.flag = false
           })
         }
+        items.flag = !items.flag
       },
-      saveClick(){
-        if(!this.listItem.phone || !(/^1(3|4|5|7|8)\d{9}$/.test(this.listItem.phone))){
+      saveClick() {
+        if (!this.listItem.phone || !(/^1[0-9]{10}$/.test(this.listItem.phone))) {
           this.$toast('请填写正确的手机号码')
           return
         }
         let arr = []
-        if(this.listItem.orders){
-          arr.push(this.listItem.orders)
-        }
-        if(this.listItem.buys){
-          arr.push(this.listItem.buys)
-        }
-        if(this.listItem.product){
-          arr.push(this.listItem.product)
-        }
-        if(this.listItem.store){
-          arr.push(this.listItem.store)
-        }
-        if(this.listItem.rights){
-          arr.push(this.listItem.rights)
-        }
-        // arr.push(this.listItem.orders,this.listItem.buys,this.listItem.product,this.listItem.store,this.listItem.rights)
-        // arr.forEach((item) => {
-        //   if(!item){
-        //     this.$toast('请完善权限信息')
-        //     return
-        //   }
-        // })
+        this.rightsList.forEach((item) => {
+          item.rights.forEach((items) => {
+            if(items.flag){
+              arr.push(items.value)
+            }
+          })
+        })
         RightsNew({
           phone: this.listItem.phone,
           rights: arr,
-        },'post').then((res) => {
-          if(parseInt(res.data.res) === 0){
+        }, 'post').then((res) => {
+          if (parseInt(res.data.res) === 0) {
             this.$toast(`新增成功`)
             this.$router.push(`/rights`)
-          }else {
+          } else {
             this.$toast(res.data.errmsg)
           }
         }).catch(() => {
           this.$toast('新增失败')
         })
       },
-      editClick(){
+      editClick() {
         let arr = []
-        if(this.listItem.orders){
-          arr.push(this.listItem.orders)
-        }
-        if(this.listItem.buys){
-          arr.push(this.listItem.buys)
-        }
-        if(this.listItem.product){
-          arr.push(this.listItem.product)
-        }
-        if(this.listItem.store){
-          arr.push(this.listItem.store)
-        }
-        if(this.listItem.rights){
-          arr.push(this.listItem.rights)
-        }
-        // arr.push(this.listItem.orders,this.listItem.buys,this.listItem.product,this.listItem.store,this.listItem.rights)
-        // arr.forEach((item) => {
-        //   if(!item){
-        //     this.$toast('请完善权限信息')
-        //     return
-        //   }
-        // })
+        this.rightsList.forEach((item) => {
+          item.rights.forEach((items) => {
+            if(items.flag){
+              arr.push(items.value)
+            }
+          })
+        })
         RightsModify({
           phone: this.listItem.phone,
           rights: arr,
-        },'put').then((res) => {
-          if(parseInt(res.data.res) === 0){
+        }, 'put').then((res) => {
+          if (parseInt(res.data.res) === 0) {
             this.$toast(`修改成功`)
             this.leavePage()
-          }else {
+          } else {
             this.$toast(res.data.errmsg)
           }
         }).catch(() => {
@@ -269,9 +254,25 @@
         margin-bottom 10px
         .name
           fsc 14px #545454
+          margin-bottom 15px
         .options
           display flex
           flex-direction row
+          .item
+            display flex
+            flex 1
+            flex-direction row
+            align-items center
+            span
+              wh 14px 14px
+              bfg()
+              border 1px solid #4DA8EE
+              border-radius 7px
+              margin-right 5px
+              &.checked
+                background #4DA8EE
+            p
+              fsc 14px #545454
     .save_btn
       display flex
       flex-direction row
@@ -297,9 +298,9 @@
     width 100%
     background #E9F5FF
     &:after
-      border 0!important
+      border 0 !important
     .cube-radio
-      padding 15px 0 0 0!important
+      padding 15px 0 0 0 !important
       &.cube-radio_selected
         .cube-radio-ui
           background #4DA8EE

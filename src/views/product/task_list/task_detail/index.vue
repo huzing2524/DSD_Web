@@ -9,7 +9,7 @@
           | 提示
       p 1、拆单生产指的是将原生产单一分为二
       p 2、拆单后可优先生产物料库存足够的生产单
-    .order_detail_item(v-if="taskState > 0")
+    .order_detail_item(v-if="taskState > 0" :style="{marginBottom:'0px'}")
       .title
         p
           span.icon
@@ -17,7 +17,16 @@
               use(xlink:href="#iconicon_danhao")
           | 生产单号
         p {{$route.query.id}}
+      .line
     .order_detail_item(v-if="taskState > 0")
+      .title
+        p
+          span.icon
+            svg.ali_icon(aria-hidden="true")
+              use(xlink:href="#iconicon_zhaungtai")
+          | 生产状态
+        p {{taskState | productTaskItemState}}
+    .order_detail_item(v-if="taskState > 0" :style="{marginBottom:'0px'}")
       .title
         p
           span.icon
@@ -30,16 +39,10 @@
           p {{productInfo.category_name}}：{{productInfo.product}}
         .item
           p 生产数量
-          p {{productInfo.target}}{{productInfo.unit}}
-    .order_detail_item(v-if="taskState > 0")
-      .title
-        p
-          span.icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconicon_zhaungtai")
-          | 状态
-        p {{taskState | productTaskItemState}}
-    .order_detail_item(v-if="taskState > 4")
+          p {{parseFloat(productInfo.target).toFixed(2)}}{{productInfo.unit}}
+      .line
+    .order_detail_item(v-if="taskState > 4" :style="{marginBottom:'0px'}")
+      .line
       .title
         p
           span.icon
@@ -58,20 +61,20 @@
           .content
             .card_top
               .card_top_left 计划生产
-                span {{productInfo.target}}
-                | 台
+                span {{parseFloat(productInfo.target).toFixed(2)}}
+                | {{productInfo.unit}}
               .card_top_right
-                vm-progress(type="circle" :width="40" stroke-width="2" stroke-color="#00CC66" :percentage="(parseFloat(item.good/productInfo.target)*100).toFixed(0) || 0")
+                vm-progress(type="circle" :width="40" stroke-width="2" stroke-color="#00CC66" :percentage="getProgress(item)")
             .card_middle
               .card_middle_bar
                 .progress
-                  .active(:style="{width: parseFloat((item.good/productInfo.target)*100).toFixed(0) + '%'} || 0")
+                  .active(:style="{width: parseFloat((item.good/(item.good+item.ng))*100).toFixed(0) + '%'} || 0")
               .card_middle_text
-                span(style="color: #31CBA7;") {{`生产合格产品：${item.good===undefined?'未设置':item.good}`}}
-                span(style="color: #A1A1A1;") {{`不合格产品：${item.ng===undefined?'未设置':item.ng}`}}
+                span(style="color: #31CBA7;") {{`生产合格产品：${item.good===undefined?'0':item.good}`}}
+                span(style="color: #A1A1A1;") {{`不合格产品：${item.ng===undefined?'0':item.ng}`}}
             .card_bottom
               .card_bottom_item
-                span {{item.start?`${getTimeString(item.start)} - ${getTimeString(item.end)}`:'未设置'}}
+                span {{item.start?`${getTimeString(item.start)} - ${getTimeString(item.end)}`:'0'}}
                 span {{item.take_time||0}}小时
               .card-bottom-item {{`备注：${item.remark || ''}`}}
     .order_detail_item(v-if="taskState > 0")
@@ -84,7 +87,7 @@
       .content.product
         .item(v-for="(item, idx) in materialList" :key="idx")
           p {{item.name}}
-          p {{item.count}}
+          p {{parseFloat(item.count).toFixed(2)}}
       .material_title(v-for="(item, idx) in supplementList" :key="item" @click="materialTitleClick(0,item)")
         .icon
           svg.ali_icon(aria-hidden="true")
@@ -108,7 +111,7 @@
           p {{productInfo.category_name}}：{{productInfo.product}}
         .item
           p 生产数量
-          p {{taskSplitData.target}}{{productInfo.unit}}
+          p {{parseFloat(taskSplitData.target).toFixed(2)}}{{productInfo.unit}}
         .item
           p 库存物料是否齐套
           p 否
@@ -126,7 +129,7 @@
           p {{productInfo.category_name}}：{{productInfo.product}}
         .item
           p 生产数量
-          p {{taskSplitData.split_count}}{{productInfo.unit}}
+          p {{parseFloat(taskSplitData.split_count).toFixed(2)}}{{productInfo.unit}}
         .item
           p 库存物料是否齐套
           p 是
@@ -137,7 +140,7 @@
           p {{productInfo.category_name}}：{{productInfo.product}}
         .item
           p 生产数量
-          p {{taskSplitData.target - taskSplitData.split_count || 0}}{{productInfo.unit}}
+          p {{parseFloat(taskSplitData.target - taskSplitData.split_count).toFixed(2) || 0}}{{productInfo.unit}}
         .item
           p 库存物料是否齐套
           p 否
@@ -213,6 +216,13 @@
     },
     methods: {
       getTimeString,
+      getProgress(item) {
+        const result = item.good/(item.good+item.ng) * 100
+        if(isNaN(result)) {
+          return 0
+        }
+        return result
+      },
       getProductTaskDetail() {
         ProductTaskDetail({}, 'get', this.$route.query.id).then(res => {
           this.taskDetailData = res.data
@@ -220,8 +230,8 @@
           this.materialList = this.taskDetailData.material_list
           this.taskProcess = this.taskDetailData.process
           this.taskState = this.productInfo.state
-          this.returnList = this.taskDetailData.related.return
-          this.supplementList = this.taskDetailData.related.supplement
+          this.returnList = this.taskDetailData.related ? this.taskDetailData.related.return : []
+          this.supplementList = this.taskDetailData.related ? this.taskDetailData.related.supplement : []
         })
       },
       getProductTaskSplit() {
@@ -267,48 +277,54 @@
         }
       },
       showDialog(){
-        let type = '',
-            content ='',
+        let content ='',
             confirm = '',
+            cancel='',
             onConfirm = ()=>{}
         // 0: 良品数量>=计划生产数量 1: 良品数<计划生产数 2: 一个良品都没有
-        switch(this.taskDetailData.state) {
+        switch(this.taskDetailData.done_state) {
           case 1:
-            type = 'confirm'
             content = '生产的合格产品数少于计划生产数量，是否设为完工入库'
             confirm = '完工入库'
             onConfirm = () => this.postProductTaskDone()
+            cancel= '取消'
             break
           case 0:
-            type = 'confirm'
             content = '确定将生产任务设为完工入库吗？'
             confirm = '完工入库'
             onConfirm = () => this.postProductTaskDone()
+            cancel = '取消'
             break
           case 2:
-            type = 'alert'
             content = '生产的合格产品数为0，请先填写准确的生产数量再选择完工入库'
             confirm = '我知道了'
             break 
         }
-        this.$createDialog({
-          type: type,
-          title: '',
+        this.$createAppDialog({
           content: content,
-          confirmBtn: {
-            text: confirm,
-            active: true,
-            disabled: false,
-            href: 'javascript:;',
-          },
-          cancelBtn: {
-            text: '取消',
-            active: false,
-            disabled: false,
-            href: 'javascript:;'
-          },
-          onConfirm: onConfirm
+          confirmText: confirm, 
+          cancelText: cancel,
+          onConfirm: onConfirm,
         }).show()
+
+        // this.$createDialog({
+        //   type: type,
+        //   title: '',
+        //   content: content,
+        //   confirmBtn: {
+        //     text: confirm,
+        //     active: true,
+        //     disabled: false,
+        //     href: 'javascript:;',
+        //   },
+        //   cancelBtn: {
+        //     text: '取消',
+        //     active: false,
+        //     disabled: false,
+        //     href: 'javascript:;'
+        //   },
+        //   onConfirm: onConfirm
+        // }).show()
       },
     }
   }
@@ -321,6 +337,15 @@
       padding 18px
       margin-bottom 10px
       bgf()
+      position relative
+      >.line
+        position absolute
+        height 1px
+        flex 1
+        width calc(100% - 36px) 
+        bottom 0px
+        background-color #eeeeee
+        bottom 0px
       >.title
         display flex
         justify-content space-between
@@ -462,6 +487,7 @@
       bgf()
       wh 100% 62px
       padding 15px
+      border 1px #cccccc solid
       div
         display flex
         align-items center

@@ -56,6 +56,12 @@
           case '8':
             state = '权限：普通管理员'
             break
+          case '10':
+            state = '治疗仪：普通管理员'
+            break
+          case '11':
+            state = '数据管理：普通管理员'
+            break
           default:
             state = ''
         }
@@ -98,7 +104,7 @@
       editClick(){
         this.rightList.phone = this.listItem.phone
         this.rightList.rightsItem = this.listItem.rights
-        this.$router.push(`/rights/create?type=edit`)
+        this.$router.push(`/rights/create?phone=${this.phone}&type=edit`)
       }
     },
   }

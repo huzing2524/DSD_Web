@@ -1,21 +1,37 @@
 <template lang="pug">
   .main
-    .title
-      p {{`${product.name}`}}
-    .detail
-      p {{`编码：${product.id}`}}
-    .detail
-      p {{`单位：${product.unit}`}}
-    .detail
-      p {{`售价：${product.price||'未设置'}`}}
-    .detail
-      p {{`安全库存：${product.safety||'未设置'}`}}
-    .detail
-      p {{`生产损耗率：${product.loss_coefficient}`}}
-    .detail
-      p {{`类目：${product.category}`}}
-    .detail
-      p {{`添加时间：${date}`}}
+    DetailCellInformation(iconHref="#iconicon_product"
+                          :title="product.name"
+                          :list="productInformation"
+                          :showLine="false")
+
+    DetailCellInformation(iconHref="#iconxinxi"
+                          title="出售信息"
+                          :list="saleInformation"
+                          :style="{marginTop:'10px'}"
+                          :showLine="false")
+
+    DetailCellInformation(iconHref="#iconshengxi"
+                          title="生产信息"
+                          :list="makeInformation"
+                          :style="{marginTop:'10px'}"
+                          :showLine="false")
+    //- .title
+    //-   p {{`${product.name}`}}
+    //- .detail
+    //-   p {{`编码：${product.id}`}}
+    //- .detail
+    //-   p {{`单位：${product.unit}`}}
+    //- .detail
+    //-   p {{`售价：${product.price||'0'}`}}
+    //- .detail
+    //-   p {{`安全库存：${product.safety||'0'}`}}
+    //- .detail
+    //-   p {{`生产损耗率：${product.loss_coefficient}`}}
+    //- .detail
+    //-   p {{`类目：${product.category}`}}
+    //- .detail
+    //-   p {{`添加时间：${date}`}}
     .edit-content
       .change-btn(@click="change")
         .btn-title
@@ -25,7 +41,11 @@
 <script>
 import { ProductDetail } from '_api/product'
 import { getYMDDateDecimalString } from '_common/util'
+import DetailCellInformation from '_components/product/detail_cell_information'
 export default {
+  components: {
+    DetailCellInformation
+  },
   data() {
     return {
       product :{}
@@ -37,6 +57,27 @@ export default {
     },
     date() {
       return getYMDDateDecimalString(this.product.time)
+    },
+    productInformation() {
+      return [
+        `编码：${this.product.id}`,
+        `单位：${this.product.unit}`,
+        `安全库存：${this.product.safety||'0'}`,
+        `类目：${this.product.category}`,
+      ]
+    },
+    saleInformation() {
+      return [
+        this.product.price?`售价：${(this.product.price+'元/'+this.product.unit)}`:"0",
+        `最小起订量：${this.product.lowest_count||'0'}`,
+        `最小包装量：${this.product.lowest_package||'0'}`
+      ]
+    },
+    makeInformation() {
+      return [
+        `生产损耗率：${this.product.loss_coefficient||'0'}`,
+        `最小生产量：${this.product.lowest_product||'0'}`
+      ]
     }
   },
   mounted() {
@@ -57,14 +98,14 @@ export default {
     }
   },
 }
+
 </script>
 
 <style lang="stylus" scoped>
   .main
     width 100%
     height 100%
-    padding-top  15px
-    background-color #ffffff
+    background-color #E6EAED
     .title
       font-size 15px
       font-weight 500
@@ -84,6 +125,7 @@ export default {
       display flex
       align-items center
       bottom 0px
+      background-color #fff
       .change-btn
         height 32px
         width 92px

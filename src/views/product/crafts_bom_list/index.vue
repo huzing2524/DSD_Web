@@ -81,6 +81,7 @@ export default {
       }
     },
     itemClick(item) {
+      this.$store.commit('product/Bom_Product', item)
       this.$router.push(`/product/crafts_bom_list/detail?id=${item.id}`)
     }
   },

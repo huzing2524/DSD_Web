@@ -1,117 +1,76 @@
 <!--供应商商品管理-->
 <template lang="pug">
-  .order_list.full_box
-    PurchaseList(v-if="isLoad" :dataList="dataList"  :jumpPath="jumpPath")
-    NullPage(v-else)
-    NewIcon(to="/purchase/supplier/supplier_add")
+  .main
+    ClientListItem(v-for="(item, index) in dataList"
+      :key="index"
+      :item='item'
+      :title='item.name'
+      :industry='item.industry'
+      :products='item.products'
+      @click="itemClick")
+    NullPage(v-show="null == dataList || dataList.length<=0")
+    NewIcon(to='/purchase/supplier/supplier_add')
 </template>
 
 <script>
-  import PurchaseList from "_components/card_list/_purchaselist2";
+  import { getSupplierList } from '_api/purchase'
+  import NullPage from '_components/null_page';
   import NewIcon from '_components/new_icon/'
-  import NullPage from "_components/null_page"
-  import {getSupplierList} from "_api/purchase"
+  import ClientListItem from '_components/client_list_item/'
 
   export default {
     components: {
-      PurchaseList,
+      ClientListItem,
       NewIcon,
-      NullPage
+      NullPage,
     },
     data() {
       return {
-        isLoad: false,
-        jumpPath: '/purchase/supplier/supplier_message_edit',
-        dataList: {
-          /*"1": [
-            {
-              name: '湖北天仙来工贸有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '湖北天仙来工贸有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '湖北天仙来工贸有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            }
-          ],
-          "2": [
-            {
-              name: '汇美科技有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '湖北天仙来工贸有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            },
-            {
-              name: '珠海格力科技有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...'
-            }
-          ],*/
-        }
+        dataList:[
+          /*{
+            "id": "string",
+            "name": "string",
+            "industry": "string",
+            "products": "string"
+          },*/
+        ]
       }
     },
     mounted() {
       this.initData()
     },
     methods: {
-      async initData() {
-        try {
-          const {data} = await getSupplierList()
-          if (data.errmsg) {
-            this.$toast(data.errmsg)
-          } else {
-            this.isLoad = true
-            this.dataList = data.list
-            console.log("dataList="+this.dataList)
-            console.log("dataList[0].id="+this.dataList[0])
-          }
-        } catch (e) {
-          console.log("获取数据失败,失败原因"+ e.toString())
-        }
+      initData() {
+        getSupplierList().then(res => {
+          this.isLoad = true
+          this.dataList = res.data.list
+        }).catch((e) => {
+          console.log(e)
+          this.$toast('加载失败')
+        })
       },
-      toCreateClick() {
-        this.$router.push(`/purchase/supplier/supplier_add`)
+      itemClick(item) {
+        this.$router.push(`/purchase/supplier/supplier_message_edit?id=${item.id}&state=${item.state}`)
       },
-      // onItemClick(itemId) {
-      //   this.$router.push({
-      //     path: `/purchase/supplier/supplier_message_chooice?id=${itemId}`
-      //   })
-      // },
-    }
+    },
   }
 </script>
 
-<style scoped lang="stylus">
+<style lang="stylus" scoped>
   .main
-    white-space:
+    height 100%
+    width 100%
+    background-color white
+    padding-left 10px
+    padding-right 10px
+    overflow-y scroll
+    .icon
+      position fixed
+      right 20px
+      bottom 20px
+      width 84px
+      height 84px
 </style>
+
+
+

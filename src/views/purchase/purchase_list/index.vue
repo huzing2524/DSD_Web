@@ -1,5 +1,5 @@
 <template lang="pug">
-  .order_list(v-if="Object.keys(this.dataList).length != 0").full_box
+  .order_list(v-if="null != this.dataList && Object.keys(this.dataList).length != 0").full_box
     PurchaseList(:dataList="dataList"  :jumpPath="jumpPath" :listType="purchaseListType")
   NullPage(v-else)
 </template>
@@ -16,7 +16,7 @@
     },
     data() {
       return {
-        purchaseListType: 1,
+        purchaseListType: '1',
         // typeArray: ["待审批", "已审核待确认","采购中","运输中","已入库","已取消"],
         jumpPath: '/purchase/purchase_list/purchase_detail',
         dataList: {

@@ -58,17 +58,17 @@ deploy:docker-tenv-update:
     - dsdiotapp
     
 
-# deploy:docker-prod-update:
-#  stage: deploy
-#  only:
-#     - master
-#  script:
-#     - ./deploy/updateComposeService.sh ${CD_PROD_COMPOSE_DIR} ${CI_COMMIT_REF_NAME} ${CD_UPDATE_IMAGE} ${CD_PROD_SERVICE_NAME}
-#  tags:
-#   - dcompose
-#   - deployment
-#   - prod
-#   - dsdiotapp
+deploy:docker-prod-update:
+ stage: deploy
+ only:
+    - master
+ script:
+    - ./deploy/updateComposeService.sh ${CD_PROD_COMPOSE_DIR} ${CI_COMMIT_REF_NAME} ${CD_UPDATE_IMAGE} ${CD_PROD_SERVICE_NAME}
+ tags:
+  - dcompose
+  - deployment
+  - prod
+  - dsdiotapp
 #
 #
 # deploy:docker-service:

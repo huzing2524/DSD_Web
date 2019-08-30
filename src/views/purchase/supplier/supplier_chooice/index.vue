@@ -1,5 +1,5 @@
 <template lang="pug">
-  .order_list(v-if="Object.keys(this.dataList).length != 0").full_box
+  .order_list.full_box(v-if="Object.keys(this.dataList).length != 0")
     .card_list.full_box(ref="listContainer")
       .order_index()
         .list_tab
@@ -29,133 +29,7 @@
     },
     data() {
       return {
-        dataList: {
-          /*"1": [
-            {
-              id: "2019041200001",
-              name: "DSD",
-              industry: "string",
-              materials: "普通口罩：500个；防尘口罩：300个；",
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '0'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200002",
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '0'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200003",
-              name: '湖北天仙来工贸有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '1'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200004",
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '0'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200005",
-              name: '湖北天仙来工贸有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '1'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200006",
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '0'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200007",
-              name: '湖北天仙来工贸有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '1'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200008",
-              name: '阿里巴巴有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '0'// 目前这个字段后台还没有设计
-            },
-          ],
-          "2": [
-            {
-              id: "2019041200009",
-              name: '汇美科技有限公司',
-              industry: '电子商务',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '1'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200010",
-              name: '北京明达科技有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '0'// 目前这个字段后台还没有设计
-            },
-            {
-              id: "2019041200011",
-              name: '珠海格力科技有限公司',
-              industry: '机械制造',
-              materials: '一次性口罩、棉布口罩、N95口罩、防尘口罩...',
-              time: 0
-              contact: "徐波",
-              position: "老板",
-              phone: "13691867533"
-              is_have_product: '0'// 目前这个字段后台还没有设计
-            }
-          ]*/
-        },
+        dataList: {},
       }
     },
     computed: {
@@ -196,10 +70,9 @@
             this.$toast(data.errmsg)
           } else {
             this.dataList = data.list
-            console.log("dataList="+this.dataList)
           }
         } catch (e) {
-          console.log("获取数据失败,失败原因"+ e.toString())
+          this.$toast("获取数据失败")
         }
       },
       scrollAdd(idx) {
@@ -219,7 +92,6 @@
         this.getData.supplier.position = item.position
         this.getData.supplier.phone = item.phone
         this.getData.supplier.address = item.region + item.address
-        console.log("this.getData.supplier="+this.getData.supplier)
         this.updatePurchase({
           ...this.getData
         })

@@ -17,6 +17,8 @@ Vue.directive('doc-title', function(el, binding) {
   let img = el.getAttribute('img-set') || null;
   let mobile = navigator.userAgent.toLowerCase();
   if (/iphone|ipad|ipod/.test(mobile)) {
+    // iOS调用原生方法修改标题
+    window.webkit && window.webkit.messageHandlers.updateTitle.postMessage(title)
     let iframe = document.createElement('iframe');
     iframe.style.display = 'none';
     iframe.setAttribute('src', img || '/favicon.ico');
@@ -31,6 +33,21 @@ Vue.directive('doc-title', function(el, binding) {
     iframe.addEventListener('load', iframeCallback);
     document.body.appendChild(iframe)
   }
+})
+
+Vue.directive('only-input-number', function (el) {
+    el.addEventListener("keypress",function(e){
+      e = e || window.event;
+      let charcode = typeof e.charCode == 'number' ? e.charCode : e.keyCode;
+      let re = /\d/;
+      if(!re.test(String.fromCharCode(charcode)) && charcode > 9 && !e.ctrlKey){
+        if(e.preventDefault){
+          e.preventDefault();
+        }else{
+          e.returnValue = false;
+        }
+      }
+    });
 })
 
 // 进度条

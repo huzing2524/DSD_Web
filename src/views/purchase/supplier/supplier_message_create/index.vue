@@ -1,42 +1,58 @@
 <!--创建供应商-添加对应物料-最后展示详情用-->
 <template lang="pug">
-  .main(v-doc-title="title")
-    .company_name
-      .qrcode
-        .left
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconicon_supplier")
-        .right
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="")
-      p {{supplierDetail.name || "佚名"}}
-
-    .company_address
-      span 地址
-      p {{getAddress(supplierDetail.region, supplierDetail.address)}}
-    .company_boss_message
-      .link_item
-        span 联系人
-        span {{getContact(supplierDetail.contact, supplierDetail.position)}}
-      .link_item
-        span 联系电话
-        span {{supplierDetail.phone || '无'}}
-      .link_item
+  .main.full_box(v-doc-title="title")
+    .body
+      .ten_padding
+      .company_name
+        .qrcode
+          .left
+            .icon
+              svg.ali_icon(aria-hidden="true")
+                use(xlink:href="#iconicon_supplier")
+          .right
+            .icon
+              svg.ali_icon(aria-hidden="true")
+                use(xlink:href="")
+        p {{supplierDetail.name || '佚名'}}
+      .ten_padding
+      .company_item
         span 所属行业
-        span {{supplierDetail.industry || ''}}
-    .company_products(v-if="null != supplierDetail && null != supplierDetail.materials")
-      .title 向该供应商采购的物料
-      .product_list(v-for="(item,index) in supplierDetail.materials" :key="index")
-        span {{item.name || ''}}
-        span {{(item.unit_price || '') | formatFloatNum }}元/{{item.unit || ''}}
+        p {{supplierDetail.industry || ''}}
+      .one_padding
+      .company_item
+        span(style="width: 60px;") 地址
+        p(style="line-height: 20px;text-align: right;") {{(getAddress(supplierDetail.region, supplierDetail.address))}}
+      .company_item
+        span 送达天数
+        p {{supplierDetail.deliver_days}}天
+      .one_padding
+      .company_item
+        span 联系人
+        p {{getContact(supplierDetail.contact, supplierDetail.position)}}
+      .company_item
+        span 联系电话
+        p {{supplierDetail.phone || '无'}}
+      .ten_padding
+      .company_item(v-if="this.$route.query.type === 'edit'")
+        span 是否使用DSD APP
+        p {{this.$route.query.state  === '1' ? '是' : '否'}}
+      .ten_padding
+      .company_products(v-if="supplierDetail != undefined && undefined != supplierDetail.materials && supplierDetail.materials.length > 0")
+        .title 向该公司采购的物料
+        .one_padding
+        .product_list(v-for="(item,index) in supplierDetail.materials" :key="index")
+          span {{item.name || ''}}
+          .item
+            span {{(item.unit_price || '') | formatFloatNum }}元/{{item.unit || ''}}
+          .item
+            span(class="item_other") 最小起订量：{{item.lowest_count=== null ? 0 : item.lowest_count}}{{item.unit || ''}} | 最小包装量：{{item.lowest_package=== null ? 0 : item.lowest_package}}{{item.unit || ''}}
+          .divider_line
     .add_operator
-      button(@click="buttonClick") {{getButtonName()}}
+      p(@click="buttonClick") {{getButtonName()}}
 </template>
 
 <script>
-  import {mapState} from "vuex";
+  import {mapState,mapActions} from "vuex";
   import {SupplierCreate,SupplierDetail} from '_api/purchase';
 
   export default {
@@ -92,21 +108,16 @@
       }),
     },
     methods: {
-      // onItemClick(supplierMessageId, info) {
-        /*this.product.id = this.data.supplierMessage.id
-        this.product.info = info
-        this.updatePurchase({
-          ...this.product
-        })
-        this.$router.push(`/purchase/supplier/product_price_modify`)*/
-      // },
+      ...mapActions('purchase', [
+        'updatePurchase'
+      ]),
       getButtonName() {
         switch (this.$route.query.type) {
           case "create":
             this.title = "创建供应商"
             return '创建'
           case "edit":
-            this.title = "编辑客户"
+            this.title = "编辑供应商"
             return '保存'
           case "add":
             this.title = "添加供应商"
@@ -138,6 +149,9 @@
           console.log(result);
           if (parseInt(result.data.res) === 0) {
             this.$toast("创建成功")
+            this.updatePurchase({
+              ...null
+            })
             this.$router.push(`/purchase/supplier/supplier_shop_management`)
           } else {
             this.$toast(result.data.errmsg)
@@ -146,7 +160,8 @@
         })
       },
       modifySupplier() {
-        console.log("this.supplierDetail=" + this.supplierDetail)
+        if(this.supplierDetail.de)
+          console.log("this.supplierDetail=" + this.supplierDetail)
         // 复制一个，如果失败了点击返回数据也不会因为下面删除了name和unit受到影响
         let body = this.copy(this.supplierDetail)
         this.supplierDetail.materials.forEach((material) => {
@@ -164,6 +179,19 @@
         })
         SupplierDetail(body, 'put', this.id).then(result => {
           if (parseInt(result.data.res) === 0) {
+            /*// 想在这里把vuex的数据清空咋清？
+            this.updatePurchase({
+              // 这样不行
+              ...null
+            })
+
+            // 平时我更新数据是
+            this.updatePurchase({
+              ...this.getData
+            })*/
+            this.clearSupplierVuex()
+
+
             this.$toast("修改成功")
             // 1: 已加入DSD， 2: 未加入DSD
             let mState = this.$route.query.state || '1'
@@ -202,6 +230,7 @@
             console.log(result.data.errmsg)
             this.$toast(result.data.errmsg)
           }
+          this.clearSupplierVuex()
         }).catch((e) => {
           this.$toast(this.myId+"添加失败")
           console.log(e)
@@ -238,6 +267,21 @@
           }
         }
       },
+      clearSupplierVuex() {
+        let data = {
+          name: '',
+          contact: '',
+          phone: '',
+          position: '',
+          industry: '',
+          region:'',
+          address: '',
+          materials: [],
+        }
+        this.updatePurchase({
+          ...data
+        })
+      }
     },
   }
 </script>
@@ -250,99 +294,116 @@
     display flex
     flex-direction row
     justify-content space-between
-
   .main
-    bg(#E6EAED)
-    column()
-    .company_name
-      bgf()
-      column()
-      padding 0 15px 0 15px
-      margin 10px 0px
-      .qrcode
-        row()
-        margin-bottom 15px
-        margin-top 15px
-        .left
-          .icon
-            wh(20px,20px)
-        .right
-          .icon
-            wh(18px, 18px)
-      p
-        fsc 15px #545454
+    bgf()
+    .body
+      fbox()
+      flex-direction column
+      .one_padding
+        background #EEEEEE
+        width 100%
+        height 1px
+      .ten_padding
+        background #EEEEEE
+        width 100%
+        height 10px
+      .company_name
+        bgf()
+        column()
+        margin 0 10px
+        .qrcode
+          display flex
+          flex-direction row
+          justify-content space-between
+          padding 12px 0 8px
+          .left
+            .icon
+              wh(20px,20px)
+          .right
+            .icon
+              wh(18px, 18px)
+        p
+          fsc 16px #333333
+          display flex
+          justify-content center
+          margin-bottom 40px
+          font-weight 600
+          line-height 22px
+      .company_item
+        bgf()
         display flex
-        justify-content center
-        margin-bottom 50px
-    .company_address
-      bgf()
-      row()
-      margin-bottom 10px
-      padding 15px
-      span
-        display flex
-        width 50px
-        fsc 14px #545454
-        margin-right 20px
-        line-height 18px
-      p
-        display flex
-        text-align right
-        fsc 14px #999999
-        line-height 18px
-    .company_boss_message
-      column()
-      background #fff
-      padding 15px 15px 0
-      margin-bottom 10px
-      justify-content space-between
-      .link_item
-        row()
-        margin-bottom 15px
+        flex-direction row
+        justify-content space-between
+        padding 12px 0
+        margin 0 10px
         span
-          fsc 14px #545454
-          font-family PingFangSC-Medium
-          font-weight 500
-          &:nth-of-type(2)
-            fsc 14px #999999
-            font-family PingFangSC-Medium
-            font-weight 500
-    .company_products
-      column()
-      margin-bottom 21px
-      bgf()
-      .title
-        fsc 14px #545454
-        padding 15px
-      .product_list
-        row()
-        padding  0 15px 15px 15px
-        span
-          fsc 14px #999999
-        span
-          fsc 14px #999999
+          display flex
+          fsc 14px #333333
+          margin-right 20px
+          line-height 18px
+          font-weight bold
+        p
+          display flex
+          justify-content flex-end
+          fsc 14px #666666
+          line-height 18px
+      .company_products
+        column()
+        margin-bottom 21px
+        bgf()
+        .title
+          fsc 14px #333333
+          padding 12px 0
+          margin 0 10px
+          font-weight bold
+        .one_padding
+          background #EEEEEE
+          width 100%
+          height 1px
+        .product_list
+          column()
+          margin-top 12px
+          span
+            height:20px;
+            font-size:14px;
+            font-weight:400;
+            line-height:20px;
+            padding-bottom 12px
+            margin 0 10px
+            color #333333
+          .item
+            span
+              height:17px;
+              font-size:12px;
+              font-weight:400;
+              color:rgba(102,102,102,1);
+              line-height:17px;
+          .divider_line
+            background #EEEEEE
+            width 100%
+            height 1px
+            margin-top 12px
+    .divider_line
+      background #CCCCCC
+      width 100%
+      height 1px
     .add_operator
       bgf()
-      position fixed
-      bottom 0
-      left 0
-      right 0
-      bgf()
-      margin-top 40px
-      padding 15px 15px 15px
+      wh 100% 52px
+      font-size 14px
+      padding 15px
       display flex
       align-items center
       justify-content flex-end
-      button
-        wh(120px,32px)
-        line-height 32px
-        display flex
-        justify-content center
-        fsc 14px white
-        border 0
-        outline none
+      border-top 1px solid #CCCCCC
+      p
+        width 96px
+        padding 8px 0
         border-radius 16px
+        margin-left 15px
         background #1E9AFF
+        text-align center
+        color white
 
 
 </style>

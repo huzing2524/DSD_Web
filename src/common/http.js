@@ -6,8 +6,16 @@ import Bus from '@/bus/'
 Axios.defaults.timeout = 20000
 Axios.defaults.headers['Content-Type'] = 'application/json;charset=UTF-8'
 Axios.defaults.headers['Authorization'] = localStorage.getItem("Authorization") + ''
-// export const rootUrl = process.env.NODE_ENV == 'development' ? window.location.origin + '/dsdpy/api/v3/' : window.location.origin + '/dsdpy/api/v3/'
-export const rootUrl = process.env.NODE_ENV == 'development' ? window.location.origin + '/api/api/v3/' : window.location.origin + '/dsdpy/api/v3/'
+// export const rootUrl = process.env.NODE_ENV == 'development' ? window.location.origin : window.location.origin
+
+const thirdPath = '/bbapi/api/v1' // 第三方
+const oldPath = '/bbapi' // 老的
+
+const defaultPath = '/dsdpy/api/v3' // 新的
+// const defaultPath = process.env.NODE_ENV == 'development' ? '/api/api/v3' : '/dsdpy/api/v3'
+
+export const rootUrl = window.location.origin
+
 Axios.defaults.baseURL = rootUrl
 
 let requestTime = 0
@@ -53,43 +61,89 @@ export function SetDefaultHeader(key, value) {
 }
 
 
-export default {
+class Http {
+  httpRequest(method, url, params) {
+    let type
+    switch (method) {
+      case 'post':
+        type = Axios.post
+        break
+      case 'put':
+        type = Axios.post
+        break
+      case 'delete':
+        type = Axios.post
+        break
+      default:
+        type = Axios.get
+    }
+    return new Promise((resolve, reject) => {
+      type(thirdPath + url, {params: ArrangeParams(params)}).then(res => {
+        resolve(res)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  }
+  httpOldRequest(method, url, params) {
+    let type
+    switch (method) {
+      case 'post':
+        type = Axios.post
+        break
+      case 'put':
+        type = Axios.post
+        break
+      case 'delete':
+        type = Axios.post
+        break
+      default:
+        type = Axios.get
+    }
+    return new Promise((resolve, reject) => {
+      type(oldPath + url, {params: ArrangeParams(params)}).then(res => {
+        resolve(res.data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  }
   httpGet(url, params = {}) {
     return new Promise((resolve, reject) => {
-      Axios.get(url, {params: ArrangeParams(params)}).then(res => {
+      Axios.get(defaultPath + url, {params: ArrangeParams(params)}).then(res => {
         resolve(res)
       }).catch(error => {
         reject(error)
       })
     })
-  },
+  }
   httpPost(url, params) {
     return new Promise((resolve, reject) => {
-      Axios.post(url, ArrangeParams(params)).then(res => {
+      Axios.post(defaultPath + url, ArrangeParams(params)).then(res => {
         resolve(res)
       }).catch(error => {
         reject(error)
       })
     })
-  },
+  }
   httpPut(url, params) {
     return new Promise((resolve, reject) => {
-      Axios.put(url, ArrangeParams(params)).then(res => {
+      Axios.put(defaultPath + url, ArrangeParams(params)).then(res => {
         resolve(res)
       }).catch(error => {
         reject(error)
       })
     })
-  },
+  }
   httpDelete(url, params) {
     return new Promise((resolve, reject) => {
-      Axios.delete(url, {params: ArrangeParams(params)}).then(res => {
+      Axios.delete(defaultPath + url, {params: ArrangeParams(params)}).then(res => {
         resolve(res)
       }).catch(error => {
         reject(error)
       })
     })
-  },
+  }
   httpAuth(url, auth) {
     return new Promise((resolve, reject) => {
       Axios.get(url, {auth: auth}).then(res => {
@@ -100,3 +154,5 @@ export default {
     })
   }
 }
+
+export default new Http()

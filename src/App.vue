@@ -5,9 +5,11 @@
       .dev_router(@click="showDevRouter = !showDevRouter" v-show="isDev")
         .path_box(v-show="showDevRouter")
           router-link(to="/order") 订单
+          router-link(to="/order/clients/client_list") 客户
           router-link(to="/store") 仓库
           router-link(to="/product") 生产
           router-link(to="/purchase") 采购
+          router-link(to="/purchase/supplier/supplier_shop_management") 供应商
           router-link(to="/rights") 权限
           router-link(to="/industry") 智能+
 </template>
@@ -70,7 +72,7 @@
 </script>
 
 <style lang="stylus">
-  @import "//at.alicdn.com/t/font_1145607_2q3g3cwavj9.css"
+  @import "//at.alicdn.com/t/font_1145607_i8ct78imyi8.css"
   @require "~@/style/reset.styl"
   @require "~@/style/common.styl"
   #app

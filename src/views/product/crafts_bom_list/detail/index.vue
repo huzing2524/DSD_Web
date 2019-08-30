@@ -1,15 +1,21 @@
 <template lang="pug">
   .main
-    .title-content
-      p {{`${data.name}/ ${data.unit}`}}
+    p(class="title-content") {{`${data.name}/ ${data.unit}`}}
     .main-content
       .process-content(v-for="(item, index) in data.process" :key="index")
         .name-content
           span(class="process-name") {{`工艺${item.process_step}`}}
           span(class="process-name") {{item.process_name}}
-        .name-content(v-for="(material, mIdx) in item.material_list" :key="mIdx")
-          span(class="process-name") {{material.name}}
-          span(class="process-name") {{`${material.count} ${material.unit}`}}
+        .detail-content
+          .name-content
+            span(class="unit-span") 单位工序用时
+            span(class="unit-span") {{`${item.unit_time}分`|| '0分'}} 
+          .line
+          .name-content
+            span(class="unit-span") 工序所需物料
+          .name-content(v-for="(material, mIdx) in item.material_list" :key="mIdx")
+            span(class="material-name") {{material.name}}
+            span(class="material-name") {{`${material.count} ${material.unit}`}}
         .btn-content
           .btn(@click="deleteClick(item)")
             span(class="delete") 删除
@@ -59,7 +65,6 @@ export default {
     async deleteClick(item) {
       // 调用删除
       try {
-        console.log('lch0', this.queryId)
         const body = {process_step: item.process_step}
         const { data } = await DeleteCrafts(body, this.queryId)
         if(data.errmsg) {
@@ -72,9 +77,12 @@ export default {
       }
     },
     changeClick(item) {
-      this.$router.push(`/product/crafts_bom_list/material_select?id=${this.queryId}&name=${item.process_name}&step=${item.process_step}`)
+      this.$store.commit('product/Bom_Type','0')
+      this.$store.commit('product/Bom_Process',item)
+      this.$router.push(`/product/crafts_bom_list/material_select`)
     },
     addClick() {
+      this.$store.commit('product/Bom_Type','1')
       this.$router.push(`/product/crafts_bom_list/add?id=${this.queryId}`)
     }
   },
@@ -92,9 +100,9 @@ export default {
       align-items center
       background-color #ffffff
       padding 10px 0px 10px 15px
-      p
-        color #545454
-        font-size 15px
+      color #333333
+      font-size 16px
+      font-weight 500
     .main-content
       width 100%
       padding 10px 10px 72px 10px
@@ -111,10 +119,26 @@ export default {
         display flex
         flex-direction row
         justify-content space-between
-        margin-bottom 15px
+        margin-bottom 12px
         .process-name
           font-size 14px
-          color #545454
+          color #333333
+          font-weight 500
+        .unit-span
+          font-size 14px
+          color #333333
+      .detail-content
+        background-color #F5FBFF
+        border-radius 6px
+        padding 12px 10px 12px 10px
+      .line
+        background-color #D6E9F6
+        height 1px
+        flex 1
+        margin-bottom 12px
+      .material-name
+        color #666666
+        font-size 12px
       .btn-content
         display flex
         align-items center
@@ -127,7 +151,7 @@ export default {
           width 30%
           height 50px
           .delete
-            color #F4616C
+            color #666666
             font-size 15px
           .edit
             color #1E9AFF

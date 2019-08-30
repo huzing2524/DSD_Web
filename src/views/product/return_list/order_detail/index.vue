@@ -1,73 +1,33 @@
 <template lang="pug">
-  .main
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 退料单号
-        span(class="product-subtitle") {{orderData.id}}
-
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_lianjie_')
-        span(class="product-title") 关联订单
-        span(class="product-subtitle") {{orderData.order_id}}
-    
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 状态
-        span(class="product-subtitle") {{orderState}}
-
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_remarks')
-        span(class="product-title") 退料原因
-      .product-item-content
-        span(class="item-title") {{orderData.remark}}
+  .main(v-show="!isError")
+    DetailRow(title="退料单号" :subtitle="orderData.id" iconHref="#iconicon_renwu1")
+    DetailRow(title="退料状态" :subtitle="orderState" iconHref="#iconicon_zhaungtai")
+    DetailRow(title="关联生产单" :subtitle="orderData.order_id" iconHref="#iconicon_lianjie_")
+    DetailCellReason(iconHref="#iconicon_remarks" title="退料原因" :remark="orderData.remark" :style="{marginTop:'10px'}")
+    DetailCellPeople(iconHref="#iconicon_shenpi" 
+                     title="申请人"
+                     :name="orderData.creator_name"
+                     :phone="orderData.creator_phone"
+                     :time="getYMDDateDecimalString(orderData.time)"
+                     :imgUri="orderData.creator_image"
+                     @clickCall=""
+                     )
+    DetailCellPeople(iconHref="#iconicon_shenpi" 
+                     title="交接人"
+                     :name="orderData.receiver_name"
+                     :phone="orderData.receiver_phone"
+                     :time="getYMDDateDecimalString(orderData.time)"
+                     :imgUri="orderData.receiver_image"
+                     @clickCall=""
+                     v-show="orderData.receiver_name"
+                     )
+    DetailCellOrder(iconHref="#iconicon_cailiao"
+                    title="退料清单"
+                    :orderList="orderData.material"
+                    :style="{marginTop:'10px'}")
+      template(v-slot:orderTitle="props") {{props.item.name}}
+      template(v-slot:orderSubtitle="props") {{props.item.count}}
       
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 创建人
-      .product-item-content
-        span(class="item-title") {{orderData.creator_name}}
-        .row-content
-          span(class="item-title") {{orderData.creator_phone}}
-          span(class="item-subtitle") {{getYMDDateDecimalString(orderData.time)}}
-
-    .product-content(v-show="orderData.receiver_name")
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 交接人
-      .product-item-content
-        span(class="item-title") {{orderData.receiver_name}}
-        .row-content
-          span(class="item-title") {{orderData.receiver_phone}}
-          span(class="item-subtitle") {{getYMDDateDecimalString(orderData.time)}}
-
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_cailiao')
-        span(class="product-title") 退料清单
-      .product-item-content(v-for="(item,index) in orderData.material" :key="index")
-        .row-content(:style="{marginTop:'0px'}")
-          span(class="item-title") {{item.name}}
-          span(class="item-subtitle") {{`${item.count}`}}
-        
     .add-content(v-if="queryState!=2" v-show="queryState!=1")
       .add-process(@click="orderConfirm")
         .confirm-icon
@@ -87,17 +47,26 @@
 
 <script>
 import QrcodeMask from '_components/product/qr_code_mask'
+import DetailRow from '_components/product/detail_row'
+import DetailCellReason from '_components/product/detail_cell_reason'
+import DetailCellPeople from '_components/product/detail_cell_people'
+import DetailCellOrder from '_components/product/detail_cell_order'
 import { ReturnDetail, ReturnQrcodeConfirm } from '_api/product'
 import { getYMDDateDecimalString } from '_common/util'
 export default {
   components: {
-    QrcodeMask
+    QrcodeMask,
+    DetailRow,
+    DetailCellReason,
+    DetailCellPeople,
+    DetailCellOrder,
   },
   data() {
     return {
       qrcodeValue:'helloworld',
       showQrcode: false,
-      orderData: {}
+      orderData: {},
+      isError: false,
     }
   },
   computed: {
@@ -144,6 +113,7 @@ export default {
           const body = {share: this.queryShare}
           const { data } = await ReturnQrcodeConfirm(body,this.queryId)
           if(data.errmsg) {
+            this.isError = true
             this.$toast(data.errmsg)
           } else {
             // 跳转
@@ -165,6 +135,7 @@ export default {
   .main
     width 100%
     // height 100%
+    min-height 100%
     padding-bottom 72px
     background-color #E6EAED
     overflow-y scroll

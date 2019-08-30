@@ -10,6 +10,10 @@ const Product_Add_Type = 'Product_Add_Type'
 const Process_Data = 'Process_Data'
 const Product_Detail = 'Product_Detail'
 const Goods_Detail = 'Goods_Detail'
+const Bom_Product = 'Bom_Product'
+const Bom_Materials = 'Bom_Materials'
+const Bom_Process = 'Bom_Process'
+const Bom_Type = 'Bom_Type'
 export default {
   namespaced: true,
   state: {
@@ -26,6 +30,10 @@ export default {
     processData: {},     // 生产任务的工序
     productDetail: {},   // 产品详情
     goodsDetail: {},      // 物料详情   
+    bomProduct: {},       // 添加Bom的产品
+    bomProcess: {},       // 添加Bom的工序
+    bomMaterials: {},     // Bom工序选择的物料单
+    bomType: '',          // 0: 修改工序 1：添加工序
   },
   mutations: {
     [Supplement_Task](state, payload) {
@@ -60,6 +68,18 @@ export default {
     },
     [Goods_Detail](state, payload) {
       state.goodsDetail = payload
+    },
+    [Bom_Product](state, payload) {
+      state.bomProduct = payload
+    },
+    [Bom_Materials](state, payload) {
+      state.bomMaterials = payload
+    },
+    [Bom_Process](state, payload) {
+      state.bomProcess = payload
+    },
+    [Bom_Type](state, payload) {
+      state.bomType = payload
     }
   }
 }

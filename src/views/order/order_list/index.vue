@@ -2,7 +2,7 @@
   .order_list.full_box
     OrderCardList(v-if="Object.keys(orderListData).length" :orderListData="orderListData" :listType="orderListType")
     NullPage(v-else)
-    NewIcon(to="/order/order_new" v-if="orderListType === 1")
+    NewIcon(to="/order/order_new/select_customer" v-if="orderListType === 1")
 </template>
 
 <script>

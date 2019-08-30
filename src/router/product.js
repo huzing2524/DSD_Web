@@ -184,6 +184,14 @@ export default [
     }
   },
   {
+    path: '/product/crafts_bom_list/add_time',
+    name: 'product_crafts_bom_list_add_time',
+    component: () => import('_views/product/crafts_bom_list/add_time/'),
+    meta: {
+      title: '工艺&BOM'
+    }
+  },
+  {
     path: '/product/process_list',
     name: 'product_process_list',
     component: () => import('_views/product/process_list/'),

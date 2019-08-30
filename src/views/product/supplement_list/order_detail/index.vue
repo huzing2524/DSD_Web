@@ -1,53 +1,23 @@
 <template lang="pug">
   .main
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 补料单号
-        span(class="product-subtitle") {{orderData.id}}
-    
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 状态
-        span(class="product-subtitle") {{orderState}}
+    DetailRow(title="补料单号" :subtitle="orderData.id" iconHref="#iconicon_renwu1")
+    DetailRow(title="补料状态" :subtitle="orderState" iconHref="#iconicon_renwu1" :showLine="false")    
+    DetailCellReason(iconHref="#iconicon_remarks" title="补料原因" :remark="orderData.remark" :style="{marginTop:'10px'}")
+    DetailCellPeople(iconHref="#iconicon_shenpi" 
+                     title="申请人"
+                     :name="orderData.creator"
+                     :phone="orderData.phone"
+                     :time="getYMDDateDecimalString(orderData.time)"
+                     :imgUri="orderData.image"
+                     @clickCall=""
+                     )
+    DetailCellOrder(iconHref="#iconicon_cailiao"
+                    title="补料清单"
+                    :orderList="orderData.material"
+                    :style="{marginTop:'10px'}")
+      template(v-slot:orderTitle="props") {{props.item.name}}
+      template(v-slot:orderSubtitle="props") {{props.item.count}}
 
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_remarks')
-        span(class="product-title") 补料原因
-      .product-item-content
-        span(class="item-title") {{orderData.remark}}
-      
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_renwu1')
-        span(class="product-title") 补料人
-      .product-item-content
-        span(class="item-title") {{orderData.creator}}
-        .row-content
-          span(class="item-title") {{orderData.phone}}
-          span(class="item-subtitle") {{getYMDDateDecimalString(orderData.time)}}
-
-    .product-content
-      .product-title-content
-        .product-icon
-          svg.ali_icon(aria-hidden="true")
-            use(xlink:href='#iconicon_cailiao')
-        span(class="product-title") 补料清单
-      .product-item-content
-        .row-content(v-for="(item, index) in orderData.material" :key="index")
-          span(class="item-title") {{item.name}}
-          span(class="item-subtitle") {{`${item.count}`}}
-        
     .link-order(@click="linkClick")
       .link-icon
         svg.ali_icon(aria-hidden="true")
@@ -57,9 +27,19 @@
 </template>
 
 <script>
+import DetailRow from '_components/product/detail_row'
+import DetailCellReason from '_components/product/detail_cell_reason'
+import DetailCellPeople from '_components/product/detail_cell_people'
+import DetailCellOrder from '_components/product/detail_cell_order'
 import { SupplementDetail } from '_api/product';
 import { getYMDDateDecimalString } from '_common/util';
 export default {
+  components: {
+    DetailRow,
+    DetailCellReason,
+    DetailCellPeople,
+    DetailCellOrder,
+  },
   data() {
     return {
       orderData:{}

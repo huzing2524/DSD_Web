@@ -6,13 +6,18 @@
           .item_title(v-if="item.name") {{item.name}}
           .item_content
             .item(v-for="(items,idx) in item.list" :key="idx" @click="confirmProducts(items)")
-              span {{items.name}}
-              p(v-if="items.dealInfo.num>0") {{items.dealInfo.num}}
+              .left
+                span {{items.name}}
+                p(v-if="items.dealInfo.num>0") {{items.dealInfo.num}}
+              .icon(v-if="items.dealInfo.num>0")
+                svg.ali_icon(aria-hidden="true")
+                  use(xlink:href="#iconxuanz")
     .select_option
       .car(@click="toggleShowSelectedBox")
-        img(src="./icon_wuse.png")
+        img(src="./icon_youse.png" v-if="materialBag.kind>0")
+        img(src="./icon_wuse.png" v-else)
         .car_point
-          p( v-if="materialBag.num>0") {{materialBag.num}}
+          p( v-if="materialBag.kind>0") {{materialBag.kind}}
       .next(@click="toNext") 下一步
     .input_box(v-if="isShowInputBox" @click="toggleShowInputBox")
       .content(@click.stop="()=>{}")
@@ -76,6 +81,7 @@
         },
         materialBag: {
           num: 0,
+          kind: 0,
           list: []
         },
       }
@@ -151,13 +157,17 @@
       getVanResult() {
         this.materialBag = {
           num: 0,
+          kind: 0,
           list: []
         }
         this.meterialList.forEach(item => {
           item.list.forEach(items => {
             if (items.dealInfo.isIn === true) {
               this.materialBag.num += Number(items.dealInfo.num)
-              this.materialBag.list.push(items)
+              if(Number(items.dealInfo.num)>0){
+                this.materialBag.kind++
+                this.materialBag.list.push(items)
+              }
             }
           })
         })
@@ -167,6 +177,7 @@
       },
       removeMaterial(){
         this.materialBag.num = 0
+        this.materialBag.kind = 0
         this.meterialList.forEach(item => {
           item.list.forEach(items => {
             if (items.id === this.activeItem.id) {
@@ -183,6 +194,7 @@
       },
       addMaterial(){
         this.materialBag.num = 0
+        this.materialBag.kind = 0
         if (!this.activeItem.dealInfo.num) {
           this.$toast('请填写数量');
           return;
@@ -203,6 +215,7 @@
       },
       clearAll(){
         this.materialBag.num = 0
+        this.materialBag.kind = 0
         this.meterialList.forEach((item) => {
           item.list.forEach(items => {
               items.dealInfo = this._.cloneDeep(this.defultDealInfo)
@@ -250,15 +263,17 @@
               margin-bottom 10px
               border-radius 6px
               justify-content space-between
-              span
-                fsc(14px,#545454)
-              p
-                background #FF4452
-                padding 1px 4px
-                border-radius 20px
-                color #FFF
-                font-size 12px
-                font-weight 200
+              align-items center
+              .left
+                display flex
+                flex-direction column
+                span
+                  fsc 14px #333333
+                  margin-bottom 4px
+                p
+                  fsc 12px #666666
+              .icon
+                wh 20px 20px
     .select_option
       display flex
       position relative

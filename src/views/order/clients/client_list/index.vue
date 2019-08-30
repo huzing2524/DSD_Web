@@ -8,7 +8,7 @@
       :industry='item.industry'
       :products='item.products'
       @click="itemClick")
-    NullPage(v-show="dataList.length<=0")
+    NullPage(v-show="null == dataList || dataList.length<=0")
     NewIcon(to='/order/clients/client_add')
 </template>
 
@@ -43,12 +43,6 @@
         OrderClients({},'get',).then(res => {
           this.isLoad = true
           this.dataList = res.data.list
-          console.log("res=" + res)
-          // console.log("res.=" + (res.data)[0].toString)
-          console.log("mData=" + this.mData)
-          // this.mData.forEach(item => {
-          //   console.log(item);
-          // })
         }).catch((e) => {
           console.log(e)
           this.$toast('加载失败')

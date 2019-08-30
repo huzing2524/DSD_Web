@@ -7,32 +7,31 @@
         p 客户名称
         input(placeholder="填写客户名称",v-model="data.name")
     .item.ten_margin_bottom
-      .input_box.one_border_bottom(@click="chooiceAddress")
+      .input_box(@click="chooiceAddress")
         p 客户地址
         .right
-          span {{data.region}}
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconArrow")
-      .input_box.one_border_bottom()
+          input(placeholder="选择地址",v-model="data.region",readonly)
+          img(src="./arrow_right.png")
+      .input_box
         p 详细地址
         input(placeholder="填写详细地址",v-model="data.address")
+      .input_box
+        p 送达天数
+        input(placeholder="填写送达天数",v-model="data.deliver_days", v-only-input-number)
     .item.ten_margin_bottom
-      .input_box.one_border_bottom(@click="chooiceIndustry")
+      .input_box(@click="chooiceIndustry")
         p 所属行业
         .right
-          span {{data.industry}}
-          .icon
-            svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconArrow")
+          input(placeholder="选择行业",v-model="data.industry",readonly)
+          img(src="./arrow_right.png")
     .item.ten_margin_bottom
-      .input_box.one_border_bottom
+      .input_box
         p 联系人
         input(placeholder="填写联系人",v-model="data.contact")
-      .input_box.one_border_bottom
+      .input_box
         p 联系电话
         input(id="phone" placeholder="填写联系电话",v-model="data.phone" type="number" maxlength="11")
-      .input_box.one_border_bottom
+      .input_box
         p 职位
         input(placeholder="填写职位",v-model="data.position")
     .position
@@ -71,6 +70,7 @@
           industry: '',
           region:'',
           address: '',
+          deliver_days: null,
           products: [],
         },
         selectedIndex: -1,
@@ -79,6 +79,9 @@
     computed: {
       ...mapState('order', {
         getData: state => state.orderClientsMessage
+      }),
+      ...mapState({
+        phoneReg: state => state.phoneReg
       }),
     },
     mounted(){
@@ -183,21 +186,20 @@
         }
       },
       goNext() {
-        let {name,contact, phone,position,industry,region,address} = this.data;
+        let {name,contact, phone,position,industry,region,address,deliver_days} = this.data;
         if(!name || !contact || !phone || !position || !industry || !region || !address){
-          this.$createToast({
-            txt: '请完善信息再提交',
-            type: 'txt'
-          }).show()
+          this.$toast('请完善信息再提交')
           return
         }
-        /*if (!this.phoneReg.test(this.data..phone)) {
-          this.$createToast({
-            txt: '请输入正确的手机号',
-            type: 'txt'
-          }).show()
+        if (!this.phoneReg.test(this.data.phone)) {
+          this.$toast("请输入正确的手机号")
           return false
-        }*/
+        }
+        if(Number(deliver_days) === 0) {
+          this.$toast("送达天数应该大于0天")
+          return;
+        }
+        this.data.deliver_days = Number(deliver_days)
         this.updateOrderClientMessage({
           ...this.data
         })
@@ -219,7 +221,7 @@
     flex-direction row
     justify-content space-between
     align-items center
-    padding 15px
+    padding 12px 10px
   .main
     width 100%
     height 100%
@@ -228,33 +230,38 @@
     flex-direction column
     .item
       bgf()
-      &.ten_margin_bottom
-        margin-bottom 10px
+      margin-top 10px
       .input_box
         align-items center
         row()
-        &.one_border_bottom
-          border-bottom 1px solid #DDDDDD
+        border-bottom 1px solid #EEEEEE
+        &:last-child
+          border-bottom 0
         p
           display flex
-          fsc(14px, #545454)
+          fsc(14px, #333333)
           margin-right 10px
           align-items center
+          font-weight bold
+          line-height 20px
         input
           fsc(14px, #999999)
           text-align right
           flex 1
+          line-height 20px
         .right
           display flex
+          flex 1
           flex-direction row
-          span
+          align-items center
+          input
+            display flex
+            flex 1
             fsc(14px, #999999)
-            text-align center
-          .icon
-            wh(5px, 10px)
+          img
+            wh 5px 10px
             margin-left 7px
             display flex
-            align-items center
     .position
       display flex
       justify-content flex-end
@@ -266,26 +273,29 @@
         border 1px solid #999999
         fsc(12px, #999999)
         padding 5px 10px
+        margin-top 12px
         &.active
-          border 1px solid #199ED7
-          color #199ED7
+          border 1px solid #1E9AFF
+          color #1E9AFF
     .save
       width 100%
       bgf()
+      position fixed
+      bottom 0
+      wh 100% 52px
+      font-size 14px
+      padding 12px
       display flex
       justify-content flex-end
-      position absolute
-      bottom 0
-      padding 15px
+      border-top 1px solid #CCCCCC
       button
-        wh(92px,32px)
-        line-height 32px
         display flex
         justify-content center
-        fsc 14px white
-        border:1px solid rgba(77,168,238,1);
-        outline none
-        color #4DA8EE
+        align-items center
+        height 28px
+        width 80px
+        background-color #1E9AFF
+        color #fff
         border-radius 16px
 </style>
 

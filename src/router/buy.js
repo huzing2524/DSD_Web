@@ -104,7 +104,7 @@ export default [
     name: 'supplier_create',
     component: () => import('_views/purchase/supplier/supplier_create'),
     meta: {
-      title: '创建供应商',
+      title: '',
     }
   },
   {
@@ -156,13 +156,13 @@ export default [
     }
   },
   {
-    path: '/purchase/supplier/add_supplier_add_material',//选择供应商看了基本信息后下一步跳转到"这个已经加入大数点平台的供应商能提供的商品列表”，选择的东西是供应商已经有的。
-    name: 'add_supplier_add_material',
-    component: () => import('_views/purchase/supplier/add_supplier_add_material'),
+    path: '/purchase/supplier/supplier_add_deliver_days',//创建完供应商基本信息后跳转到选择到货天数
+    name: 'supplier_add_deliver_days',
+    component: () => import('_views/purchase/supplier/supplier_add_deliver_days'),
     meta: {
-      title: '向供应商采购的物料',
+      title: '供应商信息',
     }
-  }
+  },
 
 
 

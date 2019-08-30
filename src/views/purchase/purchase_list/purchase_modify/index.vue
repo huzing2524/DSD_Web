@@ -1,5 +1,5 @@
 <template lang="pug">
-  .purchase_detail(v-if="isLoad").full_box
+  .purchase_detail(v-if="isLoad")
     .customer
       .title
         .name
@@ -11,7 +11,7 @@
           span 切换
           .icon
             svg.ali_icon(aria-hidden="true")
-              use(xlink:href="#iconArrow_bule_")
+              use(xlink:href="#iconArrow")
       .info
         span {{getData.supplier.name}}
         .boss_info
@@ -23,36 +23,34 @@
       .material_title
         .icon
           svg.ali_icon(aria-hidden="true")
-            use(xlink:href="#iconicon_product")
+            use(xlink:href="#iconicon_cailiao")
         span 采购物料
       .material_list
         .list_item(v-for="(item, index) in getData.materials" :key="index")
           .item-name
             p {{item.category_name + ':' + item.name}}
           input(placeholder="填写采购数量...",v-model="item.count")
-    .divider_line
     .scheduled_time
       .left
         .icon
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconicon_time")
-        span 预计到货时间
+        span 期望到货时间
       .right(@click="chooiceDate")
         span {{getYMDDateDecimalString(getData.plan_arrival_time)}}
         .icon
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconarrow_")
-    .divider_line
     .remark
       .material_title
         .icon
           svg.ali_icon(aria-hidden="true")
             use(xlink:href="#iconicon_remarks")
-        span 备注
+        span 给供应商留言
       textarea(placeholder="选填..." v-model="getData.remark")
-    .divider_line
     .operator_bar
-      button(@click = "clickSaveAndApprove") 保存并通过审批
+      .save_and_approve(@click = "clickSaveAndApprove")
+        .p 保存并通过审批
 
 </template>
 
@@ -61,9 +59,6 @@
   import {PurchaseOrder} from "../../../../api/purchase";
   import {mapState,mapActions} from "vuex";
   import {getYMDDateDecimalString,getTimestampByDate } from '_common/util'
-  // var date = new Date()
-  // var dateTime = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()
-
   export default {
     components: {Textarea},
     data() {
@@ -71,48 +66,55 @@
         isLoad : false,
         // dateTime: '',
         // purchaseData: {},
-        supplier: {
-          name: "大数点",
-          phone: "15625267876",
-          contact: "波波",
-          position: "Boss",
-          address: "广东省深圳市宝安区福永街道五道口前海2区4巷滨海大厦608"
+        mData: {
+          supplier_id: '',// 在需要用的时候再赋值进来
+          state: "1",
+          state_time: "2019-09-01",
+          // TODO 这个参数需要服务器返回
+          money: '498,520.98',
+          flag:'0',
+          remark: "重要客户，质量要求较高，须严格把控产品质量",// 这个参数目前没用上
+          supplier: {
+            // TODO，目前缺少这个id，在采购修改里面需要用这个id
+            id: "001",
+            name: "大数点",
+            phone: "15625267876",
+            contact: "波波",
+            position: "Boss",
+            address: "广东省深圳市宝安区福永街道五道口前海2区4巷滨海大厦608"
+          },
+          materials:[
+            {
+              id: '',
+              category_name: '玻璃',
+              name: '钢化玻璃',
+              count: '9988',
+              unit: '个',
+              unit_price: '0.01'
+            },
+            {
+              id: '',
+              category_name: '电脑',
+              name: '笔记本',
+              count: '100',
+              unit: '台',
+              unit_price: '2500'
+            },
+            {
+              id: '',
+              category_name: '风扇',
+              name: '台式风扇',
+              count: '200',
+              unit: '台',
+              unit_price: '300'
+            },
+          ],
+          approve: {
+            "name": "黄东强",
+            "phone": "16726576666",
+            "time": 1555040053
+          }
         },
-        product: {
-          category_name: '玻璃',
-          name: '钢化玻璃',
-          count: '9988',
-          unit: '个',
-          unit_price: '0.01'
-        },
-        products:[
-          {
-            category_name: '玻璃',
-            name: '钢化玻璃',
-            count: '9988',
-            unit: '个',
-            unit_price: '0.01'
-          },
-          {
-            category_name: '电脑',
-            name: '笔记本',
-            count: '100',
-            unit: '台',
-            unit_price: '2500'
-          },
-          {
-            category_name: '风扇',
-            name: '台式风扇',
-            count: '200',
-            unit: '台',
-            unit_price: '300'
-          },
-        ],
-        approve: {
-          "name": "黄东强",
-          "phone": "16726576666",
-          "time": 1555040053
-        }
       }
     },
     computed: {
@@ -163,7 +165,7 @@
             this.$toast('已通过')
             this.$router.go(-1)
           } else {
-            console.log(res.errmsg)
+            console.log(result.data.errmsg)
           }
         }).catch(() => {
           this.$toast('修改失败')
@@ -191,13 +193,17 @@
 
 <style lang="stylus" scoped>
   .purchase_detail
-    background white
+    width 100%
+    height 100%
+    background #E6EAED
+    overflow scroll
+    -webkit-overflow-scrolling touch
     .customer
       display flex
       flex-direction column
       background white
-      margin-bottom 1px
-      padding 15px
+      margin-bottom 10px
+      padding 12px 10px
       .title
         display flex
         flex-direction row
@@ -216,23 +222,24 @@
             font-size 15px
             color #545454
             align-items center
+            font-weight bold
         .change_customer
           display flex
           flex-direction row
           align-items center
           span
             font-size 15px
-            color #1E9AFF
+            color #F5FBFF
             align-items center
             margin-right 6px
           .icon
             display flex
-            width 6px
-            height 12px
+            width 8px
+            height 14px
       .info
         display flex
         flex-direction column
-        background #E9F5FF
+        background #F5FBFF
         border-radius 6px
         padding 15px 21px 15px 15px
         margin-top 15px
@@ -246,9 +253,9 @@
           display flex
           flex-direction row
           span
-            padding 2px 12px
-            border 1px solid #999999
-            border-radius 11px
+            padding 6px 12px
+            background:rgba(222,242,255,1);
+            border-radius 14px
             font-size 12px
             margin-right 10px
             color #999999
@@ -259,7 +266,8 @@
       display flex
       flex-direction column
       background white
-      padding 15px
+      padding 12px 10px 0
+      margin-bottom 10px
       .material_title
         display flex
         flex-direction row
@@ -273,38 +281,36 @@
         span
           font-size 15px
           color #545454
+          font-weight bold
       .material_list
         height 100%
         width 100%
         background-color white
         margin-top 15px
-        margin-bottom 15px
         overflow-y scroll
         .list_item
           display flex
           flex-direction column
-          background #E9F5FF
-          padding 15px
+          background #F5FBFF
+          padding 12px 10px
           border-radius 6px
+          margin-bottom 12px
           .item-name
             align-items center
             font-size 14px
-            color #464646
+            color #333333
             margin-bottom 16px
           input
-            fsc(14px, #545454)
+            fsc(14px, #666666)
             flex 1
-            background #E9F5FF
-    .divider_line
-      background #E6EAED
-      height 10px
+            background #F5FBFF
     .scheduled_time
       display flex
       flex-direction row
       justify-content space-between
       background white
-      padding 15px
-      bottom 15px
+      padding 12px 10px
+      margin-bottom 10px
       .left
         display flex
         flex-direction row
@@ -317,6 +323,7 @@
         span
           fsc 15px #545454
           align-items center
+          font-weight bold
       .right
         display flex
         flex-direction row
@@ -331,18 +338,15 @@
           display flex
           width 6px
           height 12px
-    .divider_line
-      background #E6EAED
-      height 10px
     .remark
       display flex
       flex-direction column
+      padding 12px 10px
       bgf()
       .material_title
         display flex
         flex-direction row
         align-items center
-        margin  15px
         .icon
           display flex
           width 16px
@@ -351,34 +355,34 @@
         span
           fsc 15px #545454
           align-items center
+          font-weight bold
       textarea
         fsc 14px #999999
+
         background rgba(233,245,255,1)
         border-radius 6px
         border 0
         outline none
         align-items center
-        margin 0 15px
-    .divider_line
-      background #E6EAED
-      height 0
+        margin-top 12px
+        min-height 60px
     .operator_bar
-      width 100%
-      position absolute
+      position fixed
       bottom 0
+      left 0
+      right 0
+      bgf()
+      padding 15px 15px 15px
       display flex
       align-items center
-      flex-direction row
       justify-content flex-end
-      bgf()
-      button
-        border 0
-        outline none
+      .save_and_approve
+        width 96px
+        border 1px solid #1E9AFF
+        color #4DA8EE
         border-radius 16px
-        border 1px solid rgba(77,168,238,1)
-        fsc 14px #4DA8EE
-        padding 6px 19px
-        margin 15px
+        font-size 14px
+        padding 6px 0
 
 
 
