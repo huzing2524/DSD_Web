@@ -32,10 +32,8 @@ module.exports = {
         https: false,
         proxy: {
             '/api': {
-                // target: 'http://192.168.10.123:8000/',
-                // target: 'http://192.168.0.104:3000',
-                target: 'http://web.base.tenv.dsdiot.com/',
-                // target: 'http://192.168.0.126:8000',
+                target: 'http://127.0.0.1:8000',
+                // target: 'http://web.base.tenv.dsdiot.com/',
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {
@@ -43,10 +41,8 @@ module.exports = {
                 }
             },
             '/dsdpy': {
-                // target: 'http://192.168.10.123:8000/',
-                // target: 'http://192.168.0.104:3000',
-                target: 'http://web.base.tenv.dsdiot.com/',
-                // target: 'http://192.168.0.126:8000',
+                target: 'http://127.0.0.1:8000/',
+                // target: 'http://web.base.tenv.dsdiot.com/',
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {
@@ -54,10 +50,8 @@ module.exports = {
                 }
             },
             '/bbapi': {
-                //     target: 'http://192.168.0.123:8000/',
-                // target: 'http://192.168.0.104:3000',
-                target: 'http://web.base.tenv.dsdiot.com/',
-                // target: 'http://192.168.0.126:8000',
+                target: 'http://127.0.0.1:8000/',
+                // target: 'http://web.base.tenv.dsdiot.com/',
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {
