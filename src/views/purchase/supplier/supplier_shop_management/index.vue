@@ -6,7 +6,7 @@
       :item='item'
       :title='item.name'
       :industry='item.industry'
-      :products='item.products'
+      :products='item.materials'
       @click="itemClick")
     NullPage(v-show="null == dataList || dataList.length<=0")
     NewIcon(to='/purchase/supplier/supplier_add')
@@ -44,6 +44,7 @@
         getSupplierList().then(res => {
           this.isLoad = true
           this.dataList = res.data.list
+          // console.log('list', res.data.list)
         }).catch((e) => {
           console.log(e)
           this.$toast('加载失败')
