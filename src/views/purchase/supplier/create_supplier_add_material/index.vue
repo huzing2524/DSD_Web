@@ -17,7 +17,7 @@
         @click="itemClick(product)")
           .nameAndState
             span(class="item-name") {{product.name}}
-            span(class="item_other") 最小起订量：{{product.lowest_count=== null ? 0 : product.lowest_count}}{{product.unit || ''}} | 最小包装量：{{product.lowest_product=== null ? 0 : product.lowest_product}}{{product.unit || ''}}
+            span(class="item_other") 最小起订量：{{product.lowest_count=== null ? 0 : product.lowest_count}}{{product.unit || ''}} | 最小包装量：{{product.lowest_package=== null ? 0 : product.lowest_package}}{{product.unit || ''}}
           .icon-chooice(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].unit_price>0)")
             svg.ali_icon(aria-hidden="true")
               use(xlink:href='#iconxuanz')
@@ -34,7 +34,7 @@
         @click="itemClick(product)")
           .nameAndState
             span(class="item-name") {{product.name}}
-            span(class="item_other") 最小起订量：{{product.lowest_count=== null ? 0 : product.lowest_count}}{{product.unit || ''}} | 最小包装量：{{product.lowest_product=== null ? 0 : product.lowest_product}}{{product.unit || ''}}
+            span(class="item_other") 最小起订量：{{product.lowest_count=== null ? 0 : product.lowest_count}}{{product.unit || ''}} | 最小包装量：{{product.lowest_package=== null ? 0 : product.lowest_package}}{{product.unit || ''}}
           .icon-chooice(v-if="selectedProductDict[product.id]&&(selectedProductDict[product.id].unit_price>0)")
             svg.ali_icon(aria-hidden="true")
               use(xlink:href='#iconxuanz')
@@ -55,7 +55,7 @@
       @itemClick="selectedMaskItemClick")
       template(v-slot:title="slotProps") {{slotProps.item.name}}
       template(v-slot:subtitle="slotProps") {{`单位：${slotProps.item.unit}`}} {{`单位采购价：${slotProps.item.unit_price}元`}}
-      template(v-slot:tip="slotProps") 最小起订量：{{slotProps.item.lowest_count=== null ? 0 : slotProps.item.lowest_count}}{{slotProps.item.unit || ''}} | 最小包装量：{{slotProps.item.lowest_product === null ? 0 : slotProps.item.lowest_product}}{{slotProps.item.unit || ''}}
+      template(v-slot:tip="slotProps") 最小起订量：{{slotProps.item.lowest_count=== null ? 0 : slotProps.item.lowest_count}}{{slotProps.item.unit || ''}} | 最小包装量：{{slotProps.item.lowest_package === null ? 0 : slotProps.item.lowest_package}}{{slotProps.item.unit || ''}}
     .select-content
       .save-row
         .icon-car(v-if="totalCount <= 0")
@@ -73,7 +73,7 @@
       :unit='currentInputProduct.unit'
       :inputPriceValue='inputPriceValue'
       :lowestCountValue='currentInputProduct.lowest_count'
-      :lowestPackageNumValue='currentInputProduct.lowest_product'
+      :lowestPackageNumValue='currentInputProduct.lowest_package'
       :isCreate='this.$route.query.type === "create" ? "true" : "false"'
       :show="isShowInputMask"
       priceName='单位采购价'
@@ -273,17 +273,18 @@
           return '￥'+unit_price
         }
       },
-      getLowestCount(lowest_count) {
+      // getLowestCount(lowest_count) {
         // if(lowest_count === undefined || lowest_count === null) {
-          return 0
+        //   return 0
         // }else {
         //   return lowest_count
         // }
-      },
+      // },
       // 计算总条数，筛选选中的产品
       getTotalCount() {
         let count = 0
         // this.selectedProductArr = []
+        // eslint-disable-next-line no-unused-vars
         Object.values(this.selectedProductDict).forEach(product => {
           // this.selectedProductArr.push(product)
           count = count + 1
