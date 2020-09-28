@@ -143,7 +143,7 @@
           this.$toast('请输入公司名称')
           return
         }
-        if (!this.industry) {
+        if (!this.options) {
           this.$toast('请选择公司所属行业')
           return
         }
