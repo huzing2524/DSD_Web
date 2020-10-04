@@ -7,21 +7,21 @@
           <div class="item-lable">公司名称</div>
           <input type="text" placeholder="填写公司名称" v-model="company_name">
         </div>
-        <div class="form-item">
+        <div class="form-item" @click="chooiceIndustry">
           <div class="item-lable">所属行业</div>
-          <!--<input type="text" placeholder="选择行业" readonly disableClear>-->
-          <cube-select
-            v-model="industry"
-            title="行业"
-            :options="options"
-            placeholder="选择行业"
-            :auto-pop="autoPop"
-            :disabled="disabled"
-            class="form_select">
-          </cube-select>
+          <input type="text" placeholder="选择行业" v-model="industry" readonly disableClear>
+<!--          <cube-select-->
+<!--            v-model="industry"-->
+<!--            title="行业"-->
+<!--            :options="options"-->
+<!--            placeholder="选择行业"-->
+<!--            :auto-pop="autoPop"-->
+<!--            :disabled="disabled"-->
+<!--            class="form_select">-->
+<!--          </cube-select>-->
           <img src="./icon_right.png" alt="">
         </div>
-        <div class="form-item" @click="showAddressPicker">
+        <div class="form-item" @click="chooiceAddress">
           <div class="item-lable">公司地区</div>
           <input type="text" placeholder="选择地区" v-model="region" readonly disableClear>
           <img src="./icon_right.png" alt="">
@@ -44,7 +44,8 @@
               v-for="(item, idx) in buttonArr"
               :key="idx"
               @click="()=>{item.isActive = !item.isActive}"
-            >{{item.text}}</button>
+            >{{item.text}}
+            </button>
           </div>
         </div>
         <div class="problems-else">
@@ -62,10 +63,11 @@
 </template>
 
 <script>
-  import { provinceList, cityList, areaList } from '_common/area/'
-  import { company_category } from '_common/company_category/'
-  import { NewFactory } from '_api/industry/'
-  import { mapState } from 'vuex'
+  import {provinceList, cityList, areaList} from '_common/area/'
+  import {company_category} from '_common/company_category/'
+  import {NewFactory} from '_api/industry/'
+  import {mapState} from 'vuex'
+
   const addressData = provinceList
   addressData.forEach(province => {
     province.children = cityList[province.value]
@@ -73,11 +75,13 @@
       city.children = areaList[city.value]
     })
   })
+  const industryData = company_category
   export default {
     data() {
       return {
+        selectIndustryPosition: [],
         options: company_category,
-        industry: '服装服饰行业',
+        industry: '',
         placeholder: '请选择入职时间',
         autoPop: false,
         disabled: false,
@@ -115,35 +119,49 @@
         ]
       }
     },
-    computed:{
+    computed: {
       ...mapState({
         phoneReg: state => state.phoneReg
       })
     },
-    mounted(){
+    mounted() {
       this.addressPicker = this.$createCascadePicker({
-        title: '',
+        title: '选择地址',
         data: addressData,
-        onSelect: this.selectHandle,
+        onSelect: this.selectAddress,
+        onCancel: this.cancelHandle
+      })
+      this.industryPicker = this.$createPicker({
+        title: '选择行业',
+        data: [industryData],
+        selectedIndex: this.selectIndustryPosition,
+        onSelect: this.selectIndustry,
         onCancel: this.cancelHandle
       })
     },
     methods: {
-      showAddressPicker() {
+      // 选择行业
+      chooiceIndustry() {
+        this.industryPicker.show()
+      },
+      // 选择行业的回调
+      selectIndustry(selectedVal, selectedIndex, selectedText) {
+        this.industry = selectedText.join('')
+      },
+      // 选择地址
+      chooiceAddress() {
         this.addressPicker.show()
       },
-      selectHandle(selectedVal, selectedIndex, selectedText) {
+      selectAddress(selectedVal, selectedIndex, selectedText) {
         this.region = selectedText.join('')
       },
-      cancelHandle() {
-
-      },
       newFactory() {
+        // alert(this.industry)
         if (!this.company_name) {
           this.$toast('请输入公司名称')
           return
         }
-        if (!this.options) {
+        if (!this.industry) {
           this.$toast('请选择公司所属行业')
           return
         }
@@ -177,11 +195,11 @@
           contact_phone: this.contact_phone,
           solve_problems: arr,
           supplement: this.supplement
-        },'post').then(res => {
-          if(parseInt(res.data.res) === 0){
+        }, 'post').then(res => {
+          if (parseInt(res.data.res) === 0) {
             this.$toast('提交成功');
             this.$router.go(-1);
-          }else {
+          } else {
             this.$toast(res.data.errmsg);
           }
         }).catch(err => {
@@ -193,58 +211,69 @@
 </script>
 
 <style lang="stylus" scoped>
-  #industry-more{
+  #industry-more {
     width: 100%;
     height: 100%;
     background: #fff;
     display: flex;
     flex-direction: column;
   }
-  .industry-more-data{
+
+  .industry-more-data {
     flex: 1;
     overflow-x: hidden;
     overflow-y: scroll;
   }
-  .industry-more-title{
+
+  .industry-more-title {
     display: flex;
     padding: 16px 12px 2px 12px;
     font-size: 16px;
     color: #333333;
     font-weight: 500;
   }
-  .industry-more-form{
+
+  .industry-more-form {
     display: flex;
     flex-direction: column;
     padding: 0 10px;
-    .form-item{
+
+    .form-item {
       display: flex;
       flex-direction: row;
       padding: 22px 0 8px 0;
       border-bottom: 1px solid #EEEEEE;
       font-size: 14px;
-      .item-lable{
+
+      .item-lable {
         margin-right: 16px;
       }
-      .form_select{
+
+      .form_select {
         flex: 1;
         padding: 0;
-        >span{
+
+        > span {
           color: #666;
         }
-        &:after{
+
+        &:after {
           content: '';
           /*border: none!important;*/
           display: none;
         }
-        .cube-select-icon{
+
+        .cube-select-icon {
           display: none;
         }
       }
-      input{
+
+      input {
         flex: 1;
         color: #666;
       }
-      img{
+
+      img {
         display: flex;
         justify-content: flex-end;
         width: 20px;
@@ -252,60 +281,72 @@
       }
     }
   }
-  .industry-more-problems{
+
+  .industry-more-problems {
     display: flex;
     flex-direction: column;
     padding: 14px 10px;
-    .problems-resolve{
+
+    .problems-resolve {
       display: flex;
       flex-direction: column;
-      .problems-resolve-title{
+
+      .problems-resolve-title {
         font-size: 14px;
         color: #333333;
         margin-bottom: 16px;
       }
-      .problems-resolve-box{
+
+      .problems-resolve-box {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        button{
+
+        button {
           font-size: 14px;
           color: #A1A1A1;
           padding: 6px 10px;
-          border:1px solid rgba(238,238,238,1);
-          border-radius:20px;
+          border: 1px solid rgba(238, 238, 238, 1);
+          border-radius: 20px;
           margin-right: 24px;
           margin-bottom: 8px;
-          &.active{
+
+          &.active {
             background: #00CC66;
             color: #FFF;
           }
         }
       }
     }
-    .problems-else{
+
+    .problems-else {
       display: flex;
       flex-direction: row;
-      .form-item{
+
+      .form-item {
         width: 100%;
         display: flex;
         flex-direction: row;
         padding: 14px 0 8px 0;
         border-bottom: 1px solid #EEEEEE;
         font-size: 14px;
-        .item-lable{
+
+        .item-lable {
           margin-right: 16px;
         }
-        input{
+
+        input {
           color: #A1A1A1;
         }
       }
     }
   }
-  .industry-more-btn{
+
+  .industry-more-btn {
     display: flex;
     padding: 16px;
-    button{
+
+    button {
       width: 343px;
       height: 46px;
       line-height: 46px;
@@ -313,14 +354,14 @@
       color: #fff;
       font-size: 16px;
       font-weight: 600;
-      border-radius:24px;
+      border-radius: 24px;
     }
   }
 </style>
 <style lang="stylus">
 
-  .form_select{
-    .cube-select-icon{
+  .form_select {
+    .cube-select-icon {
       display: none;
     }
   }
